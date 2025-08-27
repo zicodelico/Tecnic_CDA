@@ -1,0 +1,71 @@
+{% extends 'cda/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="mb-4 text-primary fw-bold">
+        <i class="bi bi-card-checklist me-2"></i>Placas Registradas
+    </h2>
+
+    {% if placas %}
+    <div class="table-responsive shadow-sm rounded">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Número de Placa</th>
+                    <th scope="col">Fecha Registro</th>
+                    <th scope="col">Fotos</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for placa in placas %}
+                <tr class="shadow-sm rounded bg-white">
+                    <td class="fw-semibold">{{ placa.id }}</td>
+                    <td class="fw-semibold">{{ placa.numero_placa }}</td>
+                    <td>{{ placa.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <span class="badge bg-info text-dark">{{ placa.fotos.count }} foto(s)</span>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column flex-md-row gap-2">
+                            <a href="{% url 'cda:agregar_fotos' placa.id %}" class="btn btn-sm btn-primary w-100 w-md-auto">
+                                <i class="bi bi-camera me-1"></i> Fotos
+                            </a>
+
+                            {% if placa.fotos.count > 0 %}
+                                {% if user.userprofile.role in 'ingeniero superusuario' or user.is_superuser %}
+                                <a href="{% url 'cda:generar_pdf' placa.id %}" class="btn btn-sm btn-success w-100 w-md-auto">
+                                    <i class="bi bi-download me-1"></i> PDF
+                                </a>
+                                {% endif %}
+                            {% endif %}
+
+                            {% if user.userprofile.role in 'ingeniero superusuario' or user.is_superuser %}
+                            <a href="{% url 'cda:eliminar_placa' placa.id %}" class="btn btn-sm btn-danger w-100 w-md-auto">
+                                <i class="bi bi-trash me-1"></i> Eliminar
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info d-flex align-items-center gap-2 shadow-sm rounded">
+        <i class="bi bi-info-circle fs-4"></i>
+        <span>No hay placas registradas en el sistema.</span>
+    </div>
+    {% endif %}
+
+    <div class="mt-4">
+        <a href="{% url 'cda:crear_placa' %}" class="btn btn-primary btn-lg shadow-sm">
+            <i class="bi bi-plus-circle me-1"></i> Registrar Nueva Placa
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+

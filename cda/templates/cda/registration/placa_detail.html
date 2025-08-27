@@ -1,0 +1,14 @@
+{% extends 'cda/base.html' %}
+{% block title %}Detalle de Placa{% endblock %}
+{% block content %}
+<h2>Placa: {{ placa.codigo }}</h2>
+<ul>
+    {% for foto in placa.fotos.all %}
+        <li>
+            <img src="{{ foto.imagen.url }}" width="200"><br>
+            Comentario: {{ foto.comentario }}<br>
+            Fecha: {{ foto.fecha }}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

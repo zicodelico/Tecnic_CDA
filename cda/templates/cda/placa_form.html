@@ -1,0 +1,180 @@
+{% extends 'cda/base.html' %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <!-- Header con breadcrumbs -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'cda:home' %}" class="text-decoration-none">Inicio</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Registrar Placa</li>
+                </ol>
+            </nav>
+
+            <!-- Tarjeta principal -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-plus-circle-fill text-white fs-2"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="card-title mb-0 text-white">Registrar Nueva Placa</h4>
+                            <p class="card-text text-white opacity-75 mb-0">Complete el formulario para registrar una nueva placa vehicular</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="numero_placa" class="form-label fw-semibold">
+                                <i class="bi bi-tag-fill text-primary me-2"></i>Número de Placa
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="bi bi-car-front text-primary"></i>
+                                </span>
+                                <input type="text" class="form-control form-control-lg" id="numero_placa" 
+                                       name="numero_placa" required placeholder="Ej: ABC123"
+                                       pattern="[A-Za-z0-9]{3,10}" 
+                                       title="Formato de placa válido: entre 3 y 10 caracteres alfanuméricos">
+                            </div>
+                            <div class="form-text mt-2">
+                                <i class="bi bi-info-circle me-1"></i>Ingrese el número de placa sin espacios ni guiones.
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fw-semibold">
+                                <i class="bi bi-check-circle-fill me-2"></i>Registrar Placa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="bi bi-shield-check me-1"></i>Los datos están protegidos
+                        </small>
+                        <small class="text-muted">
+                            <i class="bi bi-clock-history me-1"></i>Actualizado {% now "d/m/Y" %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Información adicional -->
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 bg-light">
+                        <div class="card-body text-center">
+                            <i class="bi bi-lightning-charge-fill text-warning fs-1 mb-2"></i>
+                            <h6 class="card-title">Proceso Rápido</h6>
+                            <p class="card-text small">Registro de placas en menos de 1 minuto</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 bg-light">
+                        <div class="card-body text-center">
+                            <i class="bi bi-database-check-fill text-success fs-1 mb-2"></i>
+                            <h6 class="card-title">Almacenamiento Seguro</h6>
+                            <p class="card-text small">Toda la información se guarda de forma cifrada</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 border-0 bg-light">
+                        <div class="card-body text-center">
+                            <i class="bi bi-list-check text-primary fs-1 mb-2"></i>
+                            <h6 class="card-title">Fácil Gestión</h6>
+                            <p class="card-text small">Acceda a las placas registradas en cualquier momento</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script para validación del formulario -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación del formulario
+    const form = document.querySelector('.needs-validation');
+    
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        
+        form.classList.add('was-validated');
+    });
+    
+    // Convertir a mayúsculas automáticamente
+    const placaInput = document.getElementById('numero_placa');
+    placaInput.addEventListener('input', function() {
+        this.value = this.value.toUpperCase();
+    });
+});
+</script>
+
+<style>
+.card {
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15) !important;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #4ca1af;
+    box-shadow: 0 0 0 0.25rem rgba(76, 161, 175, 0.25);
+}
+
+.input-group-text {
+    border-radius: 10px 0 0 10px !important;
+    border: 2px solid #e9ecef;
+    border-right: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+    border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(76, 161, 175, 0.4);
+}
+
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+}
+
+.breadcrumb-item.active {
+    color: #6c757d;
+    font-weight: 500;
+}
+</style>
+{% endblock %}

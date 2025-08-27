@@ -1,0 +1,52 @@
+{% extends 'cda/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm rounded border-0">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0 fw-bold">
+                    <i class="bi bi-plus-circle me-2"></i>Registrar Nueva Placa
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger shadow-sm rounded">
+                        <strong>Errores encontrados:</strong>
+                        <ul class="mb-0">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        <label for="numero_placa" class="form-label fw-semibold">Número de Placa</label>
+                        <input type="text" class="form-control form-control-lg shadow-sm" 
+                               id="numero_placa" name="numero_placa" required 
+                               placeholder="Ej: ABC123" value="{{ form.numero_placa.value|default:'' }}">
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                            <i class="bi bi-check-circle me-1"></i> Guardar Placa
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="mt-2 text-center">
+                    <a href="{% url 'cda:lista_placas' %}" class="btn btn-secondary btn-sm shadow-sm">
+                        <i class="bi bi-arrow-left me-1"></i> Volver a Lista de Placas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

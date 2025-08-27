@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte PDF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            color: #2c3e50;
+        }
+        h1 {
+            font-size: 24px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .footer {
+            margin-top: 50px;
+            font-size: 12px;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reporte para {{ usuario.username }}</h1>
+    <p>Este PDF fue generado con <strong>wkhtmltopdf</strong> desde Django.</p>
+    <p>Fecha de generación: {{ now|date:"d/m/Y H:i" }}</p>
+
+    <div class="footer">
+        <p>© Tecnic-CDA | Reporte generado automáticamente</p>
+    </div>
+</body>
+</html>

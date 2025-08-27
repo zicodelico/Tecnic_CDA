@@ -1,0 +1,259 @@
+{% extends 'cda/base.html' %}
+
+{% block title %}Iniciar Sesión - Tecnic-CDA{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .login-container {
+        max-width: 420px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    
+    .login-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        background: #fff;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .login-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+        padding: 2rem 1.5rem;
+        text-align: center;
+        border-bottom: none;
+    }
+    
+    .card-body {
+        padding: 2rem;
+    }
+    
+    .form-control {
+        border-radius: 10px;
+        padding: 0.875rem 1rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #4ca1af;
+        box-shadow: 0 0 0 0.25rem rgba(76, 161, 175, 0.25);
+    }
+    
+    .input-icon {
+        position: relative;
+    }
+    
+    .input-icon i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+        z-index: 5;
+    }
+    
+    .input-icon input {
+        padding-left: 45px;
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+        border: none;
+        border-radius: 10px;
+        padding: 0.875rem 1.5rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(76, 161, 175, 0.4);
+    }
+    
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 1.5rem 0;
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .divider::before {
+        margin-right: 0.5rem;
+    }
+    
+    .divider::after {
+        margin-left: 0.5rem;
+    }
+    
+    .system-info {
+        text-align: center;
+        margin-top: 2rem;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.875rem;
+    }
+    
+    .system-info a {
+        color: rgba(255, 255, 255, 0.9);
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    
+    .system-info a:hover {
+        color: #fff;
+        text-decoration: underline;
+    }
+    
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #6c757d;
+        z-index: 5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="card-header">
+            <div class="d-flex justify-content-center mb-3">
+                <div class="login-icon" style="width: 70px; height: 70px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-shield-lock-fill text-white" style="font-size: 2rem;"></i>
+                </div>
+            </div>
+            <h3 class="text-white mb-0">Bienvenido a Tecnic-CDA</h3>
+            <p class="text-white opacity-75 mb-0 mt-2">Sistema de Gestión de Placas Vehiculares</p>
+        </div>
+        
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <div>
+                    <strong>Error de autenticación!</strong> Usuario o contraseña incorrectos.
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                
+                <div class="mb-3 input-icon">
+                    <i class="bi bi-person-fill"></i>
+                    <input type="text" 
+                           class="form-control {% if form.errors %}is-invalid{% endif %}" 
+                           id="username" 
+                           name="username" 
+                           required
+                           placeholder="Nombre de usuario">
+                    <div class="invalid-feedback">
+                        Por favor ingrese su nombre de usuario.
+                    </div>
+                </div>
+                
+                <div class="mb-4 input-icon">
+                    <i class="bi bi-lock-fill"></i>
+                    <input type="password" 
+                           class="form-control {% if form.errors %}is-invalid{% endif %} password-field" 
+                           id="password" 
+                           name="password" 
+                           required
+                           placeholder="Contraseña">
+                    <span class="password-toggle" onclick="togglePassword()">
+                        <i class="bi bi-eye-fill"></i>
+                    </span>
+                    <div class="invalid-feedback">
+                        Por favor ingrese su contraseña.
+                    </div>
+                </div>
+                
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-login btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
+                    </button>
+                </div>
+                
+                <div class="divider">¿Necesita ayuda?</div>
+                
+                <div class="text-center">
+                    <small class="text-muted">
+                        Si tiene problemas para acceder, contacte al administrador del sistema.
+                    </small>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="system-info">
+        <p>Tecnic-CDA v1.0 &copy; {% now "Y" %} - Todos los derechos reservados</p>
+        <p><a href="#"><i class="bi bi-shield-check me-1"></i>Políticas de seguridad</a> | <a href="#"><i class="bi bi-question-circle me-1"></i>Soporte técnico</a></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Función para mostrar/ocultar contraseña
+    function togglePassword() {
+        const passwordField = document.querySelector('.password-field');
+        const toggleIcon = document.querySelector('.password-toggle i');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            toggleIcon.classList.remove('bi-eye-fill');
+            toggleIcon.classList.add('bi-eye-slash-fill');
+        } else {
+            passwordField.type = 'password';
+            toggleIcon.classList.remove('bi-eye-slash-fill');
+            toggleIcon.classList.add('bi-eye-fill');
+        }
+    }
+    
+    // Validación del formulario
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.needs-validation');
+        
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
+            form.classList.add('was-validated');
+        });
+    });
+</script>
+{% endblock %}
+
+
+

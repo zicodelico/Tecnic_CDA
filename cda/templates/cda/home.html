@@ -1,0 +1,50 @@
+{% extends 'cda/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 text-center">
+        <h2 class="mb-4">Sistema de Gestión de Placas Vehiculares</h2>
+        
+        {% if user.is_authenticated %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Bienvenido, {{ user.username }}</h5>
+                    <p class="card-text">Rol: <strong>{{ user.groups.first.name }}</strong></p>
+                    
+                    <div class="d-grid gap-2 d-md-block">
+                        <a href="{% url 'cda:crear_placa' %}" class="btn btn-primary me-2">
+                            <i class="bi bi-plus-circle"></i> Registrar Nueva Placa
+                        </a>
+                        
+                        <a href="{% url 'cda:lista_placas' %}" class="btn btn-secondary me-2">
+                            <i class="bi bi-list"></i> Ver Placas Registradas
+                        </a>
+                        
+                        {% if user.groups.first.name == 'Ingeniero' or user.groups.first.name == 'Superusuario' or user.is_superuser %}
+                        <a href="{% url 'cda:crear_usuario' %}" class="btn btn-success me-2">
+                            <i class="bi bi-person-plus"></i> Crear Usuario
+                        </a>
+                        
+                        <a href="{% url 'cda:lista_usuarios' %}" class="btn btn-info me-2">
+                            <i class="bi bi-people"></i> Gestionar Usuarios
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Acceso al Sistema</h5>
+                    <p class="card-text">Por favor inicie sesión para acceder al sistema</p>
+                    <a href="{% url 'cda:login' %}" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Iniciar Sesión
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

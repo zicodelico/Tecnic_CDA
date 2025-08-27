@@ -1,0 +1,254 @@
+{% extends 'cda/base.html' %}
+
+{% block extra_css %}
+<style>
+    .camera-container {
+        transition: all 0.3s ease;
+    }
+    .video-preview {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .btn-action {
+        font-weight: 600;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="card-title mb-0">
+                    <i class="bi bi-camera"></i> Captura de Foto - Placa: {{ placa.numero_placa }}
+                </h4>
+                <a href="{% url 'cda:lista_placas' %}" class="btn btn-sm btn-outline-light">
+                    <i class="bi bi-house"></i> Volver al Inicio
+                </a>
+            </div>
+            <div class="card-body">
+                
+                <!-- PASO 1: ACTIVAR CÁMARA -->
+                <div id="cameraStart" class="text-center camera-container">
+                    <div class="mb-3">
+                        <i class="bi bi-camera-video" style="font-size: 3rem; color: #6c757d;"></i>
+                    </div>
+                    <p class="text-muted mb-3">Haga clic para activar la cámara de su dispositivo</p>
+                    <button id="startCameraBtn" class="btn btn-primary btn-action">
+                        <i class="bi bi-play-circle"></i> Iniciar Cámara
+                    </button>
+                </div>
+
+                <!-- PASO 2: CÁMARA ACTIVA -->
+                <div id="cameraActive" class="text-center camera-container" style="display: none;">
+                    <video id="video" autoplay playsinline class="video-preview w-100 mb-3" style="height: 250px;"></video>
+                    <div class="d-grid gap-2">
+                        <button id="captureBtn" class="btn btn-danger btn-action">
+                            <i class="bi bi-camera-fill"></i> Capturar Foto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PASO 3: VISTA PREVIA -->
+                <div id="photoPreview" class="text-center camera-container" style="display: none;">
+                    <img id="previewImg" class="video-preview w-100 mb-3" style="height: 250px;">
+                    <div class="d-grid gap-2">
+                        <button id="retakeBtn" class="btn btn-warning btn-action">
+                            <i class="bi bi-arrow-repeat"></i> Volver a Capturar
+                        </button>
+                        <button id="acceptBtn" class="btn btn-success btn-action">
+                            <i class="bi bi-check-lg"></i> Confirmar Foto
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PASO 4: COMENTARIO Y ENVÍO -->
+                <div id="commentForm" class="camera-container" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            <i class="bi bi-chat-text"></i> Comentario de la foto
+                        </label>
+                        <textarea id="comentarioInput" class="form-control" rows="3" 
+                                  placeholder="Describa lo que se observa en la fotografía..." required></textarea>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button id="submitBtn" class="btn btn-primary btn-action">
+                            <i class="bi bi-cloud-upload"></i> Guardar Foto
+                        </button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="fotoData">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-images"></i> Fotos Registradas ({{ fotos.count }})
+                </h5>
+                {% if fotos %}
+                <span class="badge bg-light text-dark">
+                    {{ fotos.count }} foto{{ fotos.count|pluralize }}
+                </span>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if fotos %}
+                    <div class="row">
+                        {% for foto in fotos %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card h-100 shadow-sm">
+                                <img src="{{ foto.imagen.url }}" class="card-img-top" alt="Foto placa" style="height: 120px; object-fit: cover;">
+                                <div class="card-body">
+                                    <p class="card-text small mb-1">
+                                        <strong>Comentario:</strong> 
+                                        <span class="d-block text-truncate" style="max-width: 150px;" title="{{ foto.comentario }}">
+                                            {{ foto.comentario }}
+                                        </span>
+                                    </p>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i> {{ foto.fecha_creacion|date:"d/m/Y H:i" }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                        <p class="mt-2">No hay fotos registradas para esta placa</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let cameraStream = null;
+
+// 1. ACTIVAR CÁMARA
+document.getElementById('startCameraBtn').addEventListener('click', async function() {
+    try {
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(track => track.stop());
+        }
+        
+        cameraStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }, 
+            audio: false 
+        });
+        
+        const video = document.getElementById('video');
+        video.srcObject = cameraStream;
+        document.getElementById('cameraStart').style.display = 'none';
+        document.getElementById('cameraActive').style.display = 'block';
+        
+    } catch (error) {
+        alert('Error al acceder a la cámara: ' + error.message);
+    }
+});
+
+// 2. TOMAR FOTO
+document.getElementById('captureBtn').addEventListener('click', function() {
+    const video = document.getElementById('video');
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    
+    const imageData = canvas.toDataURL('image/jpeg', 0.8);
+    document.getElementById('previewImg').src = imageData;
+    document.getElementById('fotoData').value = imageData;
+    
+    document.getElementById('cameraActive').style.display = 'none';
+    document.getElementById('photoPreview').style.display = 'block';
+    
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+});
+
+// 3. VOLVER A TOMAR
+document.getElementById('retakeBtn').addEventListener('click', function() {
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('cameraStart').style.display = 'block';
+    document.getElementById('fotoData').value = '';
+});
+
+// 4. ACEPTAR FOTO
+document.getElementById('acceptBtn').addEventListener('click', function() {
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('commentForm').style.display = 'block';
+});
+
+// 5. ENVIAR FORMULARIO
+document.getElementById('submitBtn').addEventListener('click', function() {
+    const fotoData = document.getElementById('fotoData').value;
+    const comentario = document.getElementById('comentarioInput').value;
+    
+    if (!fotoData) {
+        alert('Por favor, capture una foto primero');
+        return;
+    }
+    
+    if (!comentario.trim()) {
+        alert('Por favor, agregue un comentario descriptivo');
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'post';
+    form.action = '';
+    
+    const csrf = document.createElement('input');
+    csrf.type = 'hidden';
+    csrf.name = 'csrfmiddlewaretoken';
+    csrf.value = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    const photoDataInput = document.createElement('input');
+    photoDataInput.type = 'hidden';
+    photoDataInput.name = 'photo_data';
+    photoDataInput.value = fotoData;
+    
+    const comentarioInput = document.createElement('input');
+    comentarioInput.type = 'hidden';
+    comentarioInput.name = 'comentario';
+    comentarioInput.value = comentario;
+    
+    form.appendChild(csrf);
+    form.appendChild(photoDataInput);
+    form.appendChild(comentarioInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+});
+
+// Limpiar al salir
+window.addEventListener('beforeunload', function() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+    }
+});
+</script>
+{% endblock %}
