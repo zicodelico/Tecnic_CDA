@@ -146,4 +146,5 @@ PASSWORD_VALIDATION_MESSAGES = {
     'password_entirely_numeric': _("La contraseña no puede ser completamente numérica."),
 }
 
-
+# AGREGA ESTO AL FINAL DEL ARCHIVO
+os.environ['PATH'] = '/usr/bin:' + os.environ['PATH']
