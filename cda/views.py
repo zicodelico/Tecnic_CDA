@@ -236,17 +236,17 @@ def generar_pdf(request, placa_id):
             'request': request
         })
         
-        # DEBUG: Guardar HTML para verificar
-        with open('debug_pdf.html', 'w', encoding='utf-8') as f:
-            f.write(html)
+        
             
     except TemplateDoesNotExist:
         messages.error(request, 'Error: Plantilla no encontrada.')
         return redirect('cda:agregar_fotos', placa_id=placa_id)
     
     try:
-        wkhtmltopdf_path = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+        # 🚨 CAMBIA ESTA LÍNEA - Ruta para PythonAnywhere (Linux)
+        wkhtmltopdf_path = '/usr/bin/wkhtmltopdf'  # ← Ruta correcta para PythonAnywhere
         
+        # Verificar que existe (opcional, pero buena práctica)
         if not os.path.exists(wkhtmltopdf_path):
             messages.error(request, 'Error: wkhtmltopdf no está instalado correctamente.')
             return redirect('cda:agregar_fotos', placa_id=placa_id)
@@ -286,7 +286,8 @@ def descargar_pdf(request):
     })
     
     try:
-        config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+        # 🚨 CAMBIA ESTA LÍNEA TAMBIÉN
+        config = pdfkit.configuration(wkhtmltopdf='/usr/bin/wkhtmltopdf')  # ← Ruta correcta
         pdf = pdfkit.from_string(html, False, configuration=config)
         response = HttpResponse(pdf, content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename="reporte_general.pdf"'
