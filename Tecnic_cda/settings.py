@@ -1,4 +1,5 @@
 import os
+import time
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 
@@ -97,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
@@ -148,3 +149,9 @@ PASSWORD_VALIDATION_MESSAGES = {
 
 # AGREGA ESTO AL FINAL DEL ARCHIVO
 os.environ['PATH'] = '/usr/bin:' + os.environ['PATH']
+
+
+# Forzar zona horaria de Colombia
+os.environ['TZ'] = 'America/Bogota'
+time.tzset()
+
