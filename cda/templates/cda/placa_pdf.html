@@ -262,7 +262,8 @@
                 </div>
                 <div class="info-item">
                     <div class="info-label">Fecha de Registro</div>
-                    <div class="info-value">{{ placa.fecha_creacion|date:"d/m/Y H:i" }}</div>
+                    <div class="info-value">{{ placa.fecha_creacion|date:"d/m/Y h:i A" }}</div>
+
                 </div>
                 <div class="info-item">
                     <div class="info-label">Total de Fotografías</div>
@@ -284,7 +285,8 @@
                 <div class="foto-container">
                     <div class="foto-header">
                         <div class="foto-number">Documento #{{ forloop.counter }}</div>
-                        <div style="font-size: 12px; color: #7f8c8d;">{{ foto.fecha_creacion|date:"d/m/Y H:i" }}</div>
+                        <div style="font-size: 12px; color: #7f8c8d;">{{ foto.fecha_creacion|date:"d/m/Y h:i A" }}</div>
+
                     </div>
                     
                     <!-- Imagen -->
@@ -307,7 +309,8 @@
                         </div>
                         <div class="meta-item">
                             <span style="color: #7f8c8d;">📅 Fecha captura:</span>
-                            <span class="meta-value">{{ foto.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                            <span class="meta-value">{{ foto.fecha_creacion|date:"d/m/Y h:i A" }}</span>
+
                         </div>
                         <div class="meta-item">
                             <span style="color: #7f8c8d;">📁 Archivo:</span>
