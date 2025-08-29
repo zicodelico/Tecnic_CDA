@@ -8,6 +8,8 @@
     .video-preview {
         border-radius: 10px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        object-fit: cover;
     }
     .btn-action {
         font-weight: 600;
@@ -17,6 +19,38 @@
     .btn-action:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    
+    /* Tamaños para dispositivos móviles */
+    @media (max-width: 768px) {
+        .video-large {
+            height: 60vh !important;
+            width: 100% !important;
+        }
+        .video-normal {
+            height: 40vh !important;
+            width: 100% !important;
+        }
+    }
+    
+    /* Tamaños para PC */
+    @media (min-width: 769px) {
+        .video-large {
+            height: 500px !important;
+            width: 100% !important;
+        }
+        .video-normal {
+            height: 300px !important;
+            width: 100% !important;
+        }
+    }
+    
+    /* Ajustes para mejorar la experiencia en móviles */
+    @media (max-width: 576px) {
+        .btn-action {
+            padding: 12px;
+            font-size: 16px;
+        }
     }
 </style>
 {% endblock %}
@@ -48,7 +82,7 @@
 
                 <!-- PASO 2: CÁMARA ACTIVA -->
                 <div id="cameraActive" class="text-center camera-container" style="display: none;">
-                    <video id="video" autoplay playsinline class="video-preview w-100 mb-3" style="height: 250px;"></video>
+                    <video id="video" autoplay playsinline class="video-preview w-100 mb-3 video-normal"></video>
                     <div class="d-grid gap-2">
                         <button id="captureBtn" class="btn btn-danger btn-action">
                             <i class="bi bi-camera-fill"></i> Capturar Foto
@@ -58,7 +92,7 @@
 
                 <!-- PASO 3: VISTA PREVIA -->
                 <div id="photoPreview" class="text-center camera-container" style="display: none;">
-                    <img id="previewImg" class="video-preview w-100 mb-3" style="height: 250px;">
+                    <img id="previewImg" class="video-preview w-100 mb-3 video-normal">
                     <div class="d-grid gap-2">
                         <button id="retakeBtn" class="btn btn-warning btn-action">
                             <i class="bi bi-arrow-repeat"></i> Volver a Capturar
@@ -119,7 +153,7 @@
                                         </span>
                                     </p>
                                     <small class="text-muted">
-                                       <i class="bi bi-clock"></i> {{ foto.fecha_creacion|date:"d/m/Y h:i A" }}
+                                        <i class="bi bi-clock"></i> {{ foto.fecha_creacion|date:"d/m/Y h:i A" }}
 
                                     </small>
                                 </div>
@@ -148,22 +182,55 @@ document.getElementById('startCameraBtn').addEventListener('click', async functi
             cameraStream.getTracks().forEach(track => track.stop());
         }
         
-        cameraStream = await navigator.mediaDevices.getUserMedia({ 
-            video: { 
-                facingMode: 'environment',
+        // Configuración para móviles (cámara trasera) y PC (cámara frontal o trasera según disponibilidad)
+        const constraints = {
+            video: {
                 width: { ideal: 1280 },
-                height: { ideal: 720 }
+                height: { ideal: 720 },
+                facingMode: 'environment' // Priorizar cámara trasera en móviles
             }, 
             audio: false 
-        });
+        };
+        
+        cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
         
         const video = document.getElementById('video');
         video.srcObject = cameraStream;
         document.getElementById('cameraStart').style.display = 'none';
         document.getElementById('cameraActive').style.display = 'block';
         
+        // Aumentar el tamaño del video para la captura
+        video.classList.remove('video-normal');
+        video.classList.add('video-large');
+        
     } catch (error) {
-        alert('Error al acceder a la cámara: ' + error.message);
+        console.error('Error al acceder a la cámara:', error);
+        
+        // Intentar con cámara frontal si falla la trasera (útil para PC)
+        try {
+            const constraints = {
+                video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    facingMode: 'user' // Cámara frontal
+                }, 
+                audio: false 
+            };
+            
+            cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+            
+            const video = document.getElementById('video');
+            video.srcObject = cameraStream;
+            document.getElementById('cameraStart').style.display = 'none';
+            document.getElementById('cameraActive').style.display = 'block';
+            
+            // Aumentar el tamaño del video para la captura
+            video.classList.remove('video-normal');
+            video.classList.add('video-large');
+            
+        } catch (secondError) {
+            alert('No se pudo acceder a la cámara. Asegúrate de dar los permisos necesarios. Error: ' + secondError.message);
+        }
     }
 });
 
@@ -183,6 +250,11 @@ document.getElementById('captureBtn').addEventListener('click', function() {
     
     document.getElementById('cameraActive').style.display = 'none';
     document.getElementById('photoPreview').style.display = 'block';
+    
+    // Restaurar el tamaño normal para la vista previa
+    const previewImg = document.getElementById('previewImg');
+    previewImg.classList.remove('video-large');
+    previewImg.classList.add('video-normal');
     
     if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
@@ -249,6 +321,20 @@ document.getElementById('submitBtn').addEventListener('click', function() {
 window.addEventListener('beforeunload', function() {
     if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
+    }
+});
+
+// Detectar si es un dispositivo móvil
+function isMobileDevice() {
+    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+}
+
+// Ajustar inicialmente según el tipo de dispositivo
+document.addEventListener('DOMContentLoaded', function() {
+    if (isMobileDevice()) {
+        console.log('Dispositivo móvil detectado');
+    } else {
+        console.log('PC detectado');
     }
 });
 </script>
