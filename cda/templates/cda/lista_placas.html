@@ -23,7 +23,8 @@
                 <tr class="shadow-sm rounded bg-white">
                     <td class="fw-semibold">{{ placa.id }}</td>
                     <td class="fw-semibold">{{ placa.numero_placa }}</td>
-                    <td>{{ placa.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>{{ placa.fecha_creacion|date:"d/m/Y h:i A" }}</td>
+
                     <td>
                         <span class="badge bg-info text-dark">{{ placa.fotos.count }} foto(s)</span>
                     </td>
