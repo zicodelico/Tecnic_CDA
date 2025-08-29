@@ -52,10 +52,60 @@
             font-size: 16px;
         }
     }
+
+    /* Modal para imagen ampliada */
+    .modal-image {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        padding-top: 60px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.9);
+    }
+    .modal-image-content {
+        display: block;
+        margin: 0 auto;
+        max-width: 90%;
+        max-height: 80%;
+        border-radius: 8px;
+    }
+    .close-modal {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .image-caption {
+        text-align: center;
+        color: #fff;
+        padding: 10px 20px;
+        max-width: 80%;
+        margin: 0 auto;
+    }
+    .card-img-top {
+        cursor: pointer;
+        transition: transform 0.3s ease;
+    }
+    .card-img-top:hover {
+        transform: scale(1.03);
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Modal para imagen ampliada -->
+<div id="imageModal" class="modal-image">
+    <span class="close-modal">&times;</span>
+    <img class="modal-image-content" id="modalImg">
+    <div id="modalCaption" class="image-caption"></div>
+</div>
+
 <div class="row">
     <div class="col-md-6">
         <div class="card shadow-sm">
@@ -144,7 +194,9 @@
                         {% for foto in fotos %}
                         <div class="col-md-6 mb-3">
                             <div class="card h-100 shadow-sm">
-                                <img src="{{ foto.imagen.url }}" class="card-img-top" alt="Foto placa" style="height: 120px; object-fit: cover;">
+                                <img src="{{ foto.imagen.url }}" class="card-img-top" alt="Foto placa" 
+                                     style="height: 120px; object-fit: cover;"
+                                     onclick="openModal('{{ foto.imagen.url }}', '{{ foto.comentario }}')">
                                 <div class="card-body">
                                     <p class="card-text small mb-1">
                                         <strong>Comentario:</strong> 
@@ -154,7 +206,6 @@
                                     </p>
                                     <small class="text-muted">
                                         <i class="bi bi-clock"></i> {{ foto.fecha_creacion|date:"d/m/Y h:i A" }}
-
                                     </small>
                                 </div>
                             </div>
@@ -317,24 +368,40 @@ document.getElementById('submitBtn').addEventListener('click', function() {
     form.submit();
 });
 
+// FUNCIONALIDAD PARA AMPLIAR FOTOS
+function openModal(imageSrc, comment) {
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImg');
+    const caption = document.getElementById('modalCaption');
+    
+    modal.style.display = 'block';
+    modalImg.src = imageSrc;
+    caption.innerHTML = comment || 'Sin comentario';
+}
+
+// Cerrar modal al hacer clic en la X
+document.querySelector('.close-modal').addEventListener('click', function() {
+    document.getElementById('imageModal').style.display = 'none';
+});
+
+// Cerrar modal al hacer clic fuera de la imagen
+document.getElementById('imageModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
+});
+
+// Cerrar modal con tecla ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+});
+
 // Limpiar al salir
 window.addEventListener('beforeunload', function() {
     if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
-    }
-});
-
-// Detectar si es un dispositivo móvil
-function isMobileDevice() {
-    return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
-}
-
-// Ajustar inicialmente según el tipo de dispositivo
-document.addEventListener('DOMContentLoaded', function() {
-    if (isMobileDevice()) {
-        console.log('Dispositivo móvil detectado');
-    } else {
-        console.log('PC detectado');
     }
 });
 </script>
