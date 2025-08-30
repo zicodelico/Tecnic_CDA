@@ -39,9 +39,9 @@
                                     <i class="bi bi-car-front text-primary"></i>
                                 </span>
                                 <input type="text" class="form-control form-control-lg" id="numero_placa" 
-                                       name="numero_placa" required placeholder="Ej: ABC123"
-                                       pattern="[A-Za-z0-9]{3,10}" 
-                                       title="Formato de placa válido: entre 3 y 10 caracteres alfanuméricos">
+                                name="numero_placa" required placeholder="Ej: ABC123"
+                                pattern="[A-Z0-9]{3,10}" 
+            title="Formato de placa válido: entre 3 y 10 caracteres alfanuméricos en MAYÚSCULAS">
                             </div>
                             <div class="form-text mt-2">
                                 <i class="bi bi-info-circle me-1"></i>Ingrese el número de placa sin espacios ni guiones.
@@ -117,11 +117,24 @@ document.addEventListener('DOMContentLoaded', function() {
         form.classList.add('was-validated');
     });
     
-    // Convertir a mayúsculas automáticamente
-    const placaInput = document.getElementById('numero_placa');
+    // Convertir a mayúsculas automáticamente y validar en tiempo real
+const placaInput = document.getElementById('numero_placa');
+if (placaInput) {
+    // Convertir a mayúsculas mientras se escribe
     placaInput.addEventListener('input', function() {
         this.value = this.value.toUpperCase();
     });
+    
+    // También convertir cuando se pega texto
+    placaInput.addEventListener('paste', function(e) {
+        setTimeout(() => {
+            this.value = this.value.toUpperCase();
+        }, 100);
+    });
+    
+    // Convertir cualquier valor existente al cargar la página
+    placaInput.value = placaInput.value.toUpperCase();
+}
 });
 </script>
 
