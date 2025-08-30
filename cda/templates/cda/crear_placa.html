@@ -30,7 +30,9 @@
                         <label for="numero_placa" class="form-label fw-semibold">Número de Placa</label>
                         <input type="text" class="form-control form-control-lg shadow-sm" 
                                id="numero_placa" name="numero_placa" required 
-                               placeholder="Ej: ABC123" value="{{ form.numero_placa.value|default:'' }}">
+                               placeholder="Ej: ABC123" value="{{ form.numero_placa.value|default:''|upper }}"
+                               pattern="[A-Z0-9]{3,10}" 
+                               title="Solo letras mayúsculas y números (3-10 caracteres)">
                     </div>
                     
                     <div class="d-grid mb-3">
@@ -49,4 +51,41 @@
         </div>
     </div>
 </div>
+
+<script>
+// SOLUCIÓN UNIVERSAL PARA PC Y MÓVILES - CONVERSIÓN A MAYÚSCULAS
+function forzarMayusculas() {
+    const inputPlaca = document.getElementById('numero_placa');
+    
+    if (!inputPlaca) return;
+    
+    // Convertir inmediatamente cualquier valor existente
+    inputPlaca.value = inputPlaca.value.toUpperCase();
+    
+    // Eventos para todas las interacciones posibles
+    inputPlaca.addEventListener('input', function(e) {
+        const start = this.selectionStart;
+        const end = this.selectionEnd;
+        this.value = this.value.toUpperCase();
+        this.setSelectionRange(start, end);
+    });
+    
+    inputPlaca.addEventListener('blur', function() {
+        this.value = this.value.toUpperCase();
+    });
+    
+    inputPlaca.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const text = (e.clipboardData || window.clipboardData).getData('text').toUpperCase();
+        document.execCommand('insertText', false, text);
+    });
+}
+
+// Ejecutar cuando todo esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', forzarMayusculas);
+} else {
+    forzarMayusculas();
+}
+</script>
 {% endblock %}
