@@ -123,16 +123,25 @@ def editar_usuario(request, user_id):
         usuario.is_active = 'is_active' in request.POST
         usuario.save()
         
-        # Actualizar rol si está permitido
+        # ✅ ACTUALIZAR ROL - NUEVA LÓGICA
+        nuevo_rol = request.POST.get('role', user_profile.role)
+        
+        # Superusuarios pueden cambiar cualquier rol
         if is_superusuario(request.user):
-            nuevo_rol = request.POST.get('role', user_profile.role)
+            if user_profile.role != nuevo_rol:
+                user_profile.role = nuevo_rol
+                user_profile.save()
+                messages.info(request, f'Rol de {usuario.username} actualizado a {nuevo_rol}.')
+        
+        # ✅ Ingenieros pueden cambiar solo entre inspector e ingeniero
+        elif is_ingeniero(request.user) and nuevo_rol in ['inspector', 'ingeniero']:
             if user_profile.role != nuevo_rol:
                 user_profile.role = nuevo_rol
                 user_profile.save()
                 messages.info(request, f'Rol de {usuario.username} actualizado a {nuevo_rol}.')
         
         messages.success(request, f'Usuario {usuario.username} actualizado correctamente.')
-        return redirect('cda:lista_usuarios')
+        return redirect('cda:lista_usuarios_admin')
     
     return render(request, 'cda/editar_usuario.html', {
         'usuario': usuario
