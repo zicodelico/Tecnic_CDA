@@ -9,7 +9,15 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Bienvenido, {{ user.username }}</h5>
-                    <p class="card-text">Rol: <strong>{{ user.groups.first.name }}</strong></p>
+                    <p class="card-text">
+                        Rol: <strong>
+                            {% if user.userprofile.role == 'superusuario' %}Superusuario
+                            {% elif user.userprofile.role == 'ingeniero' %}Ingeniero  
+                            {% elif user.userprofile.role == 'inspector' %}Inspector
+                            {% else %}Sin rol asignado
+                            {% endif %}
+                        </strong>
+                    </p>
                     
                     <div class="d-grid gap-2 d-md-block">
                         <a href="{% url 'cda:crear_placa' %}" class="btn btn-primary me-2">
