@@ -79,7 +79,7 @@ def crear_usuario(request):
     if is_superusuario(request.user):
         FormClass = CrearUsuarioFormSuperusuario
     else:
-        FormClass = CrearUsuarioFormIngeniero
+        FormClass = CrearUsuarioFormIngeniero  # ✅ Usa el formulario limitado
     
     if request.method == 'POST':
         form = FormClass(request.POST)
