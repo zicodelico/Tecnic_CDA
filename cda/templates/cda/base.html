@@ -214,8 +214,8 @@
                             </a></li>
                             {% if user.userprofile.role == 'superusuario' or user.is_superuser %}
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-warning" href="{% url 'admin:index' %}">
-                                <i class="bi bi-gear me-2"></i>Administración Django
+                            <li><a class="dropdown-item text-warning" href="{% url 'cda:lista_usuarios_admin' %}">
+                                <i class="bi bi-gear me-2"></i>Administración Usuarios
                             </a></li>
                             {% endif %}
                             <li><hr class="dropdown-divider"></li>

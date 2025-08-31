@@ -1,18 +1,34 @@
 {% extends 'cda/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
+<div class="container py-4">
     <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white py-3">
-                    <h4 class="card-title mb-0 text-center">
-                        <i class="bi bi-key-fill me-2"></i>Cambiar Contraseña
-                    </h4>
-                    <p class="mb-0 text-center small opacity-90">{{ usuario.username }}</p>
+        <div class="col-lg-8 col-md-10">
+            <!-- Header con breadcrumbs -->
+            <nav aria-label="breadcrumb" class="mb-4">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'cda:home' %}" class="text-decoration-none">Inicio</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'cda:lista_usuarios_admin' %}" class="text-decoration-none">Usuarios</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Editar Usuario</li>
+                </ol>
+            </nav>
+
+            <!-- Tarjeta principal -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-header py-3" style="background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <i class="bi bi-person-gear text-white fs-2"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h4 class="card-title mb-0 text-white">Editar Usuario: {{ usuario.username }}</h4>
+                            <p class="card-text text-white opacity-75 mb-0">Modifique la información del usuario</p>
+                        </div>
+                    </div>
                 </div>
+                
                 <div class="card-body p-4">
-                    <form method="post" novalidate>
+                    <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
                         {% if form.non_field_errors %}
@@ -23,95 +39,102 @@
                         </div>
                         {% endif %}
 
-                        <!-- Nueva Contraseña -->
-                        <div class="mb-4">
-                            <label for="{{ form.new_password1.id_for_label }}" class="form-label fw-semibold">
-                                <i class="bi bi-lock-fill me-1 text-primary"></i>Nueva Contraseña
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-key text-muted"></i>
-                                </span>
-                                <input 
-                                    type="password" 
-                                    name="{{ form.new_password1.name }}"
-                                    id="{{ form.new_password1.id_for_label }}"
-                                    class="form-control {% if form.new_password1.errors %}is-invalid{% endif %}"
-                                    placeholder="Ingrese nueva contraseña"
-                                    required
-                                >
+                        <div class="row">
+                            <!-- Información básica -->
+                            <div class="col-md-6">
+                                <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-info-circle me-2"></i>Información Básica</h5>
+                                
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label fw-semibold">Nombre</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-person text-primary"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="first_name" name="first_name" 
+                                               value="{{ usuario.first_name }}" placeholder="Nombre">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label fw-semibold">Apellido</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-person text-primary"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="last_name" name="last_name" 
+                                               value="{{ usuario.last_name }}" placeholder="Apellido">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label fw-semibold">Email</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-envelope text-primary"></i>
+                                        </span>
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               value="{{ usuario.email }}" placeholder="correo@ejemplo.com">
+                                    </div>
+                                </div>
                             </div>
-                            {% if form.new_password1.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.new_password1.errors.0 }}
+
+                            <!-- Información de cuenta -->
+                            <div class="col-md-6">
+                                <h5 class="mb-3 border-bottom pb-2"><i class="bi bi-shield-lock me-2"></i>Configuración de Cuenta</h5>
+                                
+                                <div class="mb-3">
+                                    <label for="username" class="form-label fw-semibold">Nombre de Usuario</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light">
+                                            <i class="bi bi-at text-primary"></i>
+                                        </span>
+                                        <input type="text" class="form-control" id="username" name="username" 
+                                               value="{{ usuario.username }}" required placeholder="Nombre de usuario">
+                                    </div>
                                 </div>
-                            {% endif %}
-                            {% if form.new_password1.help_text %}
-                                <div class="form-text text-muted small mt-1">
-                                    <i class="bi bi-info-circle me-1"></i>{{ form.new_password1.help_text }}
+
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Estado</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                               {% if usuario.is_active %}checked{% endif %} style="transform: scale(1.3);">
+                                        <label class="form-check-label ms-2" for="is_active">
+                                            Usuario Activo
+                                        </label>
+                                    </div>
+                                    <div class="form-text">Desactive para suspender temporalmente al usuario</div>
                                 </div>
-                            {% endif %}
+
+                                <div class="mb-3">
+                                    <label for="role" class="form-label fw-semibold">Rol</label>
+                                    <select class="form-select" id="role" name="role">
+                                        <option value="usuario" {% if usuario.userprofile.role == 'usuario' %}selected{% endif %}>Inspector</option>
+                                        <option value="ingeniero" {% if usuario.userprofile.role == 'ingeniero' %}selected{% endif %}>Ingeniero</option>
+                                        <option value="superusuario" {% if usuario.userprofile.role == 'superusuario' %}selected{% endif %}>Superusuario</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Confirmar Contraseña -->
-                        <div class="mb-4">
-                            <label for="{{ form.new_password2.id_for_label }}" class="form-label fw-semibold">
-                                <i class="bi bi-lock-fill me-1 text-primary"></i>Confirmar Contraseña
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-key-fill text-muted"></i>
-                                </span>
-                                <input 
-                                    type="password" 
-                                    name="{{ form.new_password2.name }}"
-                                    id="{{ form.new_password2.id_for_label }}"
-                                    class="form-control {% if form.new_password2.errors %}is-invalid{% endif %}"
-                                    placeholder="Confirme la nueva contraseña"
-                                    required
-                                >
-                            </div>
-                            {% if form.new_password2.errors %}
-                                <div class="invalid-feedback d-block">
-                                    {{ form.new_password2.errors.0 }}
-                                </div>
-                            {% endif %}
-                            {% if form.new_password2.help_text %}
-                                <div class="form-text text-muted small mt-1">
-                                    <i class="bi bi-info-circle me-1"></i>{{ form.new_password2.help_text }}
-                                </div>
-                            {% endif %}
-                        </div>
-
-                        <!-- Botones de acción -->
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary btn-lg py-2">
-                                <i class="bi bi-check-circle-fill me-2"></i>Actualizar Contraseña
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fw-semibold">
+                                <i class="bi bi-check-circle-fill me-2"></i>Guardar Cambios
                             </button>
                             <a href="{% url 'cda:lista_usuarios_admin' %}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-2"></i>Volver a Usuarios
+                                <i class="bi bi-arrow-left me-2"></i>Cancelar y Volver
                             </a>
                         </div>
                     </form>
                 </div>
-            </div>
-
-            <!-- Tarjeta de información del usuario -->
-            <div class="card mt-3 border-0 shadow-sm">
-                <div class="card-body text-center py-3">
-                    <div class="d-flex align-items-center justify-content-center">
-                        <div class="bg-light rounded-circle p-3 me-3">
-                            <i class="bi bi-person-circle text-primary" style="font-size: 1.5rem;"></i>
-                        </div>
-                        <div class="text-start">
-                            <h6 class="mb-1 fw-bold">{{ usuario.get_full_name|default:usuario.username }}</h6>
-                            <p class="mb-0 text-muted small">
-                                <span class="badge bg-{% if usuario.is_active %}success{% else %}danger{% endif %}">
-                                    {{ usuario.is_active|yesno:"Activo,Inactivo" }}
-                                </span>
-                                • {{ usuario.email|default:"Sin email" }}
-                            </p>
-                        </div>
+                
+                <div class="card-footer bg-light py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>Última actualización: {{ usuario.date_joined|date:"d/m/Y H:i" }}
+                        </small>
+                        <a href="{% url 'cda:cambiar_password_admin' usuario.id %}" class="btn btn-sm btn-outline-warning">
+                            <i class="bi bi-key me-1"></i>Cambiar Contraseña
+                        </a>
                     </div>
                 </div>
             </div>
@@ -121,95 +144,88 @@
 
 <style>
 .card {
-    border-radius: 12px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 16px;
+    overflow: hidden;
 }
 
-.card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+.form-control, .form-select {
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #4ca1af;
+    box-shadow: 0 0 0 0.25rem rgba(76, 161, 175, 0.25);
 }
 
 .input-group-text {
-    border-radius: 8px 0 0 8px !important;
+    border-radius: 10px 0 0 10px !important;
+    border: 2px solid #e9ecef;
     border-right: none;
 }
 
-.form-control {
-    border-radius: 0 8px 8px 0 !important;
-    border-left: none;
-    padding: 12px;
-}
-
-.form-control:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-}
-
-.btn {
-    border-radius: 8px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
 .btn-primary {
-    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
     border: none;
+    border-radius: 12px;
+    transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
-    background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(76, 161, 175, 0.4);
 }
 
-.invalid-feedback {
-    font-size: 0.85rem;
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
 }
 
-.form-text {
-    font-size: 0.8rem;
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .card-header .d-flex {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .card-header .ms-3 {
+        margin-left: 0 !important;
+        margin-top: 15px;
+    }
+    
+    .row > div {
+        margin-bottom: 20px;
+    }
 }
 </style>
 
 <script>
-// Validación en tiempo real
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('input[type="password"]');
+    // Validación del formulario
+    const form = document.querySelector('.needs-validation');
     
-    inputs.forEach(input => {
-        input.addEventListener('blur', function() {
-            if (this.value.trim() === '') {
-                this.classList.add('is-invalid');
-            } else {
-                this.classList.remove('is-invalid');
-            }
-        });
-    });
-    
-    form.addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        inputs.forEach(input => {
-            if (input.value.trim() === '') {
-                input.classList.add('is-invalid');
-                isValid = false;
-            }
-        });
-        
-        if (!isValid) {
-            e.preventDefault();
-            // Mostrar alerta de error
-            const alertDiv = document.createElement('div');
-            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
-            alertDiv.innerHTML = `
-                <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                <strong>Complete todos los campos requeridos</strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            form.prepend(alertDiv);
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
         }
+        
+        form.classList.add('was-validated');
     });
+
+    // Confirmación antes de desactivar usuario
+    const activeSwitch = document.getElementById('is_active');
+    if (activeSwitch) {
+        activeSwitch.addEventListener('change', function() {
+            if (!this.checked) {
+                if (!confirm('¿Está seguro de desactivar este usuario? No podrá acceder al sistema hasta que se reactive.')) {
+                    this.checked = true;
+                }
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

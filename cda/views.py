@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import AdminPasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.http import HttpResponse
 from .models import Placa, Foto, UserProfile
@@ -21,16 +22,22 @@ def is_inspector(user):
         return False
 
 def is_ingeniero(user):
-    try:
-        return user.userprofile.role == 'ingeniero'
-    except UserProfile.DoesNotExist:
+    """Verifica si el usuario es ingeniero"""
+    if not user.is_authenticated:
         return False
+    return hasattr(user, 'userprofile') and user.userprofile.role == 'ingeniero'
 
 def is_superusuario(user):
-    try:
-        return user.userprofile.role == 'superusuario'
-    except UserProfile.DoesNotExist:
-        return user.is_superuser
+    """Verifica si el usuario es superusuario (Django o custom)"""
+    if not user.is_authenticated:
+        return False
+    return user.is_superuser or (hasattr(user, 'userprofile') and user.userprofile.role == 'superusuario')
+
+def es_superusuario_o_ingeniero(user):
+    """Verifica si el usuario tiene permisos de administración"""
+    if not user.is_authenticated:
+        return False
+    return is_superusuario(user) or is_ingeniero(user)
 
 # 🏠 Vista principal
 @login_required
@@ -39,17 +46,32 @@ def home(request):
 
 # 👤 ADMINISTRACIÓN DE USUARIOS
 @login_required
-@user_passes_test(lambda u: is_ingeniero(u) or is_superusuario(u))
+@user_passes_test(es_superusuario_o_ingeniero, login_url='/accounts/login/')
 def lista_usuarios_admin(request):
-    if is_superusuario(request.user):
-        usuarios = User.objects.all().select_related('userprofile')
-    else:
-        # Ingenieros solo ven inspectores e ingenieros
-        usuarios = User.objects.filter(
-            userprofile__role__in=['inspector', 'ingeniero']
-        ).select_related('userprofile')
-    
-    return render(request, 'cda/lista_usuarios.html', {'usuarios': usuarios})
+    """
+    Vista para gestionar usuarios - Solo superusuarios e ingenieros
+    """
+    try:
+        if is_superusuario(request.user):
+            # Superusuarios ven TODOS los usuarios
+            usuarios = User.objects.all().select_related('userprofile').order_by('date_joined')
+        else:
+            # Ingenieros solo ven inspectores e ingenieros (NO superusuarios)
+            usuarios = User.objects.filter(
+                userprofile__role__in=['inspector', 'ingeniero']
+            ).select_related('userprofile').order_by('date_joined')
+        
+        return render(request, 'cda/lista_usuarios.html', {'usuarios': usuarios})
+        
+    except Exception as e:
+        # Log del error en consola
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error en lista_usuarios_admin: {str(e)}")
+        
+        # Redirigir a home con mensaje de error
+        messages.error(request, 'Error al cargar la lista de usuarios. Contacte al administrador.')
+        return redirect('cda:home')
 
 @login_required
 @user_passes_test(lambda u: is_ingeniero(u) or is_superusuario(u))
@@ -85,25 +107,74 @@ def editar_usuario(request, user_id):
     
     user_profile = usuario.userprofile
     
+    # Verificar permisos
     if is_ingeniero(request.user) and user_profile.role == 'superusuario':
         messages.error(request, 'No tienes permisos para editar superusuarios.')
         return redirect('cda:lista_usuarios_admin')
     
     if request.method == 'POST':
-        # USAR NUESTRO FORMULARIO PERSONALIZADO
-        form = CambiarContrasenaForm(user=usuario, data=request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, f'✅ Contraseña de {usuario.username} actualizada correctamente.')
-            return redirect('cda:lista_usuarios_admin')
-        else:
-            messages.error(request, '❌ Error al cambiar la contraseña. Verifique los datos.')
-    else:
-        form = CambiarContrasenaForm(user=usuario)
+        # Actualizar datos básicos del usuario
+        usuario.first_name = request.POST.get('first_name', usuario.first_name)
+        usuario.last_name = request.POST.get('last_name', usuario.last_name)
+        usuario.email = request.POST.get('email', usuario.email)
+        usuario.username = request.POST.get('username', usuario.username)
+        
+        # Actualizar estado activo
+        usuario.is_active = 'is_active' in request.POST
+        usuario.save()
+        
+        # Actualizar rol si está permitido
+        if is_superusuario(request.user):
+            nuevo_rol = request.POST.get('role', user_profile.role)
+            if user_profile.role != nuevo_rol:
+                user_profile.role = nuevo_rol
+                user_profile.save()
+                messages.info(request, f'Rol de {usuario.username} actualizado a {nuevo_rol}.')
+        
+        messages.success(request, f'Usuario {usuario.username} actualizado correctamente.')
+        return redirect('cda:lista_usuarios')
     
     return render(request, 'cda/editar_usuario.html', {
-        'form': form,
         'usuario': usuario
+    })
+
+@login_required
+@user_passes_test(es_superusuario_o_ingeniero)
+def eliminar_usuario(request, user_id):
+    # Obtener el usuario a eliminar
+    usuario_a_eliminar = get_object_or_404(User, id=user_id)
+    
+    # No permitir auto-eliminación
+    if usuario_a_eliminar == request.user:
+        messages.error(request, 'No puedes eliminar tu propia cuenta.')
+        return redirect('cda:lista_usuarios_admin')
+    
+    # No permitir que ingenieros eliminen superusuarios
+    if (usuario_a_eliminar.is_superuser and 
+        not is_superusuario(request.user) and
+        is_ingeniero(request.user)):
+        messages.error(request, 'No tienes permisos para eliminar superusuarios.')
+        return redirect('cda:lista_usuarios_admin')
+    
+    if request.method == 'POST':
+        # Verificar confirmación
+        confirm_text = request.POST.get('confirm_text', '').strip()
+        if confirm_text.upper() != 'ELIMINAR':
+            messages.error(request, 'Debe escribir "ELIMINAR" para confirmar la eliminación.')
+            return redirect('cda:eliminar_usuario', user_id=user_id)
+        
+        # Guardar información para el mensaje
+        username = usuario_a_eliminar.username
+        
+        # Eliminar el usuario
+        usuario_a_eliminar.delete()
+        
+        messages.success(request, f'Usuario {username} eliminado permanentemente.')
+        return redirect('cda:lista_usuarios_admin')
+    
+    # Si es GET, mostrar template de confirmación
+    return render(request, 'cda/eliminar_usuario.html', {
+        'usuario': usuario_a_eliminar
     })
 
 @login_required
@@ -128,6 +199,34 @@ def toggle_usuario(request, user_id):
     estado = "activado" if usuario.is_active else "desactivado"
     messages.success(request, f'Usuario {usuario.username} {estado} correctamente.')
     return redirect('cda:lista_usuarios_admin')
+
+@login_required
+@user_passes_test(es_superusuario_o_ingeniero)
+def cambiar_password_admin(request, user_id):
+    usuario = get_object_or_404(User, id=user_id)
+    
+    if is_ingeniero(request.user) and (usuario.is_superuser or is_superusuario(usuario)):
+        messages.error(request, 'No tienes permisos para cambiar la contraseña de superusuarios.')
+        return redirect('cda:lista_usuarios_admin')  # ← Ahora este nombre SÍ existe
+    
+    if request.method == 'POST':
+        form = AdminPasswordChangeForm(user=usuario, data=request.POST)
+        
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'✅ Contraseña de {usuario.username} cambiada correctamente.')
+            return redirect('cda:lista_usuarios_admin')  # ← Mismo nombre
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'Error en {field}: {error}')
+    else:
+        form = AdminPasswordChangeForm(user=usuario)
+    
+    return render(request, 'cda/cambiar_password_admin.html', {
+        'form': form,
+        'usuario': usuario
+    })
 
 # 🔑 Cambiar contraseña del usuario actual
 @login_required
@@ -214,8 +313,6 @@ def agregar_fotos(request, placa_id):
         'fotos': fotos
     })
 
-
-
 # 📄 GENERAR PDF CON VERIFICACIÓN DE IMÁGENES
 @login_required
 @user_passes_test(lambda u: is_ingeniero(u) or is_superusuario(u))
@@ -236,8 +333,6 @@ def generar_pdf(request, placa_id):
             'request': request
         })
         
-        
-            
     except TemplateDoesNotExist:
         messages.error(request, 'Error: Plantilla no encontrada.')
         return redirect('cda:agregar_fotos', placa_id=placa_id)
@@ -309,7 +404,6 @@ def lista_usuarios(request):
     return redirect('cda:lista_usuarios_admin')
 
 # 📋eliminar placa
-
 @login_required
 @user_passes_test(lambda u: is_ingeniero(u) or is_superusuario(u))
 def eliminar_placa(request, placa_id):
@@ -319,7 +413,6 @@ def eliminar_placa(request, placa_id):
         messages.success(request, 'Placa eliminada correctamente.')
         return redirect('cda:lista_placas')
     return render(request, 'cda/confirmar_eliminacion.html', {'placa': placa})
-
 
 # 🔑 Cambiar contraseña alos usuarios 
 class CambiarContrasenaUsuarioForm(PasswordChangeForm):
@@ -339,5 +432,4 @@ class CambiarContrasenaUsuarioForm(PasswordChangeForm):
             'placeholder': 'Confirmar nueva contraseña',
             'required': True
         })
-
 

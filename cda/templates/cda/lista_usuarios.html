@@ -89,13 +89,25 @@
                             </td>
                             <td class="text-end pe-4">
                                 <div class="btn-group" role="group">
-                                    <a href="{% url 'cda:editar_usuario' usuario.id %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Cambiar contraseña">
+                                    <a href="{% url 'cda:editar_usuario' usuario.id %}" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Editar usuario">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'cda:cambiar_password_admin' usuario.id %}" 
+                                    class="btn btn-sm btn-outline-warning" 
+                                    data-bs-toggle="tooltip" 
+                                    title="Cambiar contraseña">
                                         <i class="bi bi-key"></i>
                                     </a>
                                     <form method="post" action="{% url 'cda:toggle_usuario' usuario.id %}" class="d-inline">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-sm btn-outline-{% if usuario.is_active %}danger{% else %}success{% endif %}" data-bs-toggle="tooltip" title="{% if usuario.is_active %}Desactivar{% else %}Activar{% endif %} usuario">
                                             <i class="bi bi-{% if usuario.is_active %}x-circle{% else %}check-circle{% endif %}"></i>
+                                        </button>
+                                    </form>
+                                    <form method="post" action="{% url 'cda:eliminar_usuario' usuario.id %}" class="d-inline eliminar-usuario">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Eliminar usuario" onclick="return confirm('¿Está seguro de eliminar este usuario? Esta acción no se puede deshacer.')">
+                                            <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
                                 </div>
@@ -166,6 +178,20 @@
     .btn:hover {
         transform: translateY(-1px);
     }
+
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .btn-group {
+            flex-wrap: wrap;
+            gap: 0.25rem;
+        }
+        .btn-group .btn {
+            margin-bottom: 0.25rem;
+        }
+    }
 </style>
 
 <script>
@@ -174,6 +200,15 @@
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+
+        // Confirmación para eliminar usuarios
+        document.querySelectorAll('.eliminar-usuario').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('¿Está seguro de que desea eliminar este usuario permanentemente?')) {
+                    e.preventDefault();
+                }
+            });
         });
     });
 </script>

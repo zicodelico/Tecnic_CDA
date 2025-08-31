@@ -19,12 +19,15 @@ urlpatterns = [
     path('placas/<int:placa_id>/pdf/', views.generar_pdf, name='generar_pdf'),
     path('placas/<int:placa_id>/eliminar/', views.eliminar_placa, name='eliminar_placa'),
 
-    # 👤 Administración de usuarios
+    # 👤 Administración de usuarios (COMPLETO)
     path('admin/usuarios/', views.lista_usuarios_admin, name='lista_usuarios_admin'),
     path('admin/usuarios/crear/', views.crear_usuario, name='crear_usuario'),
     path('admin/usuarios/<int:user_id>/editar/', views.editar_usuario, name='editar_usuario'),
+    path('admin/usuarios/<int:user_id>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),  # NUEVA
     path('admin/usuarios/<int:user_id>/toggle/', views.toggle_usuario, name='toggle_usuario'),
     path('admin/usuarios/cambiar-contrasena/', views.cambiar_contrasena, name='cambiar_contrasena'),
+    path('admin/usuarios/<int:user_id>/cambiar-password/', views.cambiar_password_admin, name='cambiar_password_admin'),  # NUEVA
+    path('admin/usuarios/<int:user_id>/cambiar-password/', views.cambiar_password_admin, name='cambiar_password'),
 
     # 📊 Descargar PDF
     path('descargar-reporte/', views.descargar_pdf, name='descargar_pdf'),
