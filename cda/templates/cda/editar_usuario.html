@@ -106,15 +106,22 @@
                                 </div>
 
                                 <div class="mb-3">
-                                    <label for="role" class="form-label fw-semibold">Rol</label>
+                                <label for="role" class="form-label fw-semibold">Rol</label>
+                                {% if request.user.userprofile.role == 'superusuario' or request.user.is_superuser %}
+                                    <!-- Superusuarios ven dropdown completo -->
                                     <select class="form-select" id="role" name="role">
-                                        <option value="usuario" {% if usuario.userprofile.role == 'usuario' %}selected{% endif %}>Inspector</option>
+                                        <option value="inspector" {% if usuario.userprofile.role == 'inspector' %}selected{% endif %}>Inspector</option>
                                         <option value="ingeniero" {% if usuario.userprofile.role == 'ingeniero' %}selected{% endif %}>Ingeniero</option>
                                         <option value="superusuario" {% if usuario.userprofile.role == 'superusuario' %}selected{% endif %}>Superusuario</option>
                                     </select>
-                                </div>
+                                {% else %}
+                                    <!-- Ingenieros ven solo inspector e ingeniero -->
+                                    <select class="form-select" id="role" name="role">
+                                        <option value="inspector" {% if usuario.userprofile.role == 'inspector' %}selected{% endif %}>Inspector</option>
+                                        <option value="ingeniero" {% if usuario.userprofile.role == 'ingeniero' %}selected{% endif %}>Ingeniero</option>
+                                    </select>
+                                {% endif %}
                             </div>
-                        </div>
 
                         <div class="d-grid gap-2 mt-4">
                             <button type="submit" class="btn btn-primary btn-lg py-3 fw-semibold">
