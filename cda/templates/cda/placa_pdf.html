@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Reporte Técnico - Placa {{ placa.numero_placa }}</title>
+    <title>Reporte Técnico - Placa {{ placa.numero_placa }}- CVT</title>
     <style>
         /* Estilos profesionales */
         @page {
@@ -248,7 +248,7 @@
     <div class="container">
         <!-- Encabezado profesional -->
         <div class="header">
-            <h1>📋 Reporte Técnico de Inspección</h1>
+            <h1>📋 Reporte Técnico de Inspección - CVT</h1>
             <h2>Placa Vehicular: {{ placa.numero_placa }}</h2>
         </div>
 
@@ -342,10 +342,10 @@
                 </div>
                 <div class="footer-item">
                     <strong>Sistema:</strong><br>
-                    Tecnic-CDA v1.0
+                    CVT - Control Técnico Vehicular v1.0
                 </div>
             </div>
-            <p>© {% now "Y" %} Tecnic-CDA - Sistema de Gestión de Inspecciones Vehiculares</p>
+            <p>© {% now "Y" %} CVT - Control Técnico Vehicular - Sistema de Gestión de Inspecciones Vehiculares</p>
             <p style="font-size: 10px; opacity: 0.7;">Documento generado automáticamente - Este reporte es válido como evidencia técnica</p>
         </div>
     </div>

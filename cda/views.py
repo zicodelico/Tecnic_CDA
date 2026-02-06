@@ -13,6 +13,19 @@ from django.contrib import messages
 from django.utils import timezone
 import os
 import pdfkit
+from django.http import JsonResponse
+from django.template.exceptions import TemplateDoesNotExist
+import json
+from django.views.decorators.http import require_http_methods
+from django.core.files.base import ContentFile
+import base64
+
+import time
+#ESTA PARTE ES PARA EL MAEJO DE SECCIONES 
+from django.contrib.auth import authenticate, login
+from django.contrib.sessions.models import Session
+from django.contrib.auth import logout
+
 
 # 🔐 Funciones de rol
 def is_inspector(user):
@@ -237,6 +250,93 @@ def cambiar_password_admin(request, user_id):
         'usuario': usuario
     })
 
+#FUNCION PARA UNA SOLO SECCION POR USUARIO 
+
+def login_view(request):
+    if request.user.is_authenticated:
+        # Si ya está autenticado, redirigir a home
+        return redirect('cda:home')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            # ✅ PASO CRÍTICO: Eliminar TODAS las sesiones existentes ANTES de hacer login
+            active_sessions = Session.objects.filter(
+                expire_date__gte=timezone.now()
+            )
+            
+            deleted_count = 0
+            for session in active_sessions:
+                try:
+                    session_data = session.get_decoded()
+                    if '_auth_user_id' in session_data and session_data['_auth_user_id'] == str(user.id):
+                        session.delete()
+                        deleted_count += 1
+                        print(f"🗑️ Sesión eliminada durante login: {session.session_key[:10]}...")
+                except Exception as e:
+                    print(f"Error procesando sesión: {e}")
+                    continue
+            
+            print(f"✅ {deleted_count} sesiones anteriores eliminadas para {username}")
+            
+            # Ahora hacer login
+            login(request, user)
+            
+            # Forzar creación de nueva sesión
+            request.session.save()
+            
+            # Verificar que se creó la sesión
+            print(f"✅ Nueva sesión creada: {request.session.session_key}")
+            
+            # Agregar user_id a la sesión para facilitar búsqueda
+            request.session['user_id'] = user.id
+            
+            messages.success(request, f'¡Bienvenido {user.username}!')
+            return redirect('cda:home')
+        else:
+            messages.error(request, 'Usuario o contraseña incorrectos')
+    
+    return render(request, 'cda/login.html')
+
+# Eliminar todas las sesiones del usuario
+def logout_view(request):
+    
+    if request.user.is_authenticated:
+        Session.objects.filter(
+            expire_date__gte=timezone.now()
+        ).filter(
+            session_data__contains=str(request.user.id)
+        ).delete()
+    
+    logout(request)
+    return redirect('cda:login')
+
+#Cierra TODAS las sesiones activas del usuario actual
+@login_required
+def cerrar_todas_las_sesiones(request):
+    
+    if request.method == 'POST':
+        # Eliminar todas las sesiones del usuario
+        user_sessions = Session.objects.filter(
+            expire_date__gte=timezone.now()
+        ).filter(
+            session_data__contains=str(request.user.id)
+        )
+        
+        count = user_sessions.count()
+        user_sessions.delete()
+        
+        # Cerrar la sesión actual también
+        logout(request)
+        
+        messages.success(request, f'Se cerraron {count} sesiones activas. Por favor, inicia sesión nuevamente.')
+        return redirect('cda:login')
+    
+    return render(request, 'cda/confirmar_cerrar_sesiones.html')
 # 🔑 Cambiar contraseña del usuario actual
 @login_required
 def cambiar_contrasena(request):
@@ -321,7 +421,142 @@ def agregar_fotos(request, placa_id):
         'placa': placa, 
         'fotos': fotos
     })
+# agregar funciones para eliminar fotos
+@login_required
+@user_passes_test(lambda u: is_ingeniero(u) or is_superusuario(u))
+def eliminar_foto(request, foto_id):
+    """
+    Vista para eliminar una foto específica
+    """
+    foto = get_object_or_404(Foto, id=foto_id)
+    placa_id = foto.placa.id  # Guardar ID de placa antes de eliminar
+    
+    # Verificar permisos (solo ingeniero o superusuario pueden eliminar)
+    if not (is_ingeniero(request.user) or is_superusuario(request.user)):
+        messages.error(request, 'No tienes permisos para eliminar fotos.')
+        return redirect('cda:agregar_fotos', placa_id=placa_id)
+    
+    if request.method == 'POST':
+        # Eliminar el archivo físico si existe
+        if foto.imagen and os.path.exists(foto.imagen.path):
+            os.remove(foto.imagen.path)
+        
+        # Eliminar el registro de la base de datos
+        foto.delete()
+        
+        messages.success(request, '✅ Foto eliminada correctamente.')
+        
+        # Si es una petición AJAX, retornar JSON
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': 'Foto eliminada correctamente'})
+        
+        return redirect('cda:agregar_fotos', placa_id=placa_id)
+    
+    # Si es GET, mostrar template de confirmación (opcional)
+    return render(request, 'cda/confirmar_eliminacion_foto.html', {'foto': foto})
 
+# 📍 Agregar función para obtener detalles de fotos (para el carrusel)
+@login_required
+def obtener_detalles_foto(request, foto_id):
+    """
+    API para obtener detalles de una foto específica (para el carrusel)
+    """
+    try:
+        foto = get_object_or_404(Foto, id=foto_id)
+        
+        data = {
+            'id': foto.id,
+            'imagen_url': foto.imagen.url,
+            'comentario': foto.comentario,
+            'fecha': foto.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
+            'creado_por': foto.creado_por.get_full_name() or foto.creado_por.username,
+            'placa_id': foto.placa.id,
+            'placa_numero': foto.placa.numero_placa
+        }
+        
+        return JsonResponse({'success': True, 'foto': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+# 📍 Agregar función para obtener lista de fotos de una placa
+@login_required
+def obtener_fotos_placa(request, placa_id):
+    """
+    API para obtener todas las fotos de una placa (para navegación)
+    """
+    try:
+        placa = get_object_or_404(Placa, id=placa_id)
+        fotos = Foto.objects.filter(placa=placa).order_by('fecha_creacion')
+        
+        fotos_data = []
+        for foto in fotos:
+            fotos_data.append({
+                'id': foto.id,
+                'imagen_url': foto.imagen.url,
+                'comentario': foto.comentario,
+                'fecha': foto.fecha_creacion.strftime('%d/%m/%Y %H:%M'),
+                'indice': len(fotos_data)  # Índice para navegación
+            })
+        
+        return JsonResponse({'success': True, 'fotos': fotos_data, 'total': len(fotos_data)})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    
+#EDICION DE FOTOS POR EL ROL ING Y SUPER USUAIO 
+@login_required
+@require_http_methods(["POST"])
+def editar_foto(request, foto_id):
+    """Vista para editar una foto existente"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Usuario no autenticado'}, status=401)
+    
+    # Verificar permisos (solo ingenieros y superusuarios pueden editar)
+    user_profile = getattr(request.user, 'userprofile', None)
+    if not (user_profile and user_profile.role in ['ingeniero', 'superusuario']) and not request.user.is_superuser:
+        return JsonResponse({'success': False, 'error': 'Permisos insuficientes'}, status=403)
+    
+    try:
+        foto = Foto.objects.get(id=foto_id)
+        
+        # Obtener datos del formulario
+        comentario = request.POST.get('comentario', '')
+        imagen_data = request.POST.get('foto_data', '')
+        
+        if not comentario:
+            return JsonResponse({'success': False, 'error': 'El comentario es requerido'}, status=400)
+        
+        # Actualizar foto
+        foto.comentario = comentario
+        foto.ultima_edicion = timezone.now()
+        foto.editado_por = request.user
+        
+        # Si hay nueva imagen, procesarla
+        if imagen_data and imagen_data.startswith('data:image/'):
+            # Convertir base64 a imagen
+            format, imgstr = imagen_data.split(';base64,')
+            ext = format.split('/')[-1]
+            
+            # Crear nombre de archivo único
+            filename = f"foto_editada_{foto_id}_{int(time.time())}.{ext}"
+            
+            # Decodificar imagen
+            data = ContentFile(base64.b64decode(imgstr), name=filename)
+            
+            # Guardar nueva imagen (sobreescribir la anterior)
+            foto.imagen.save(filename, data, save=True)
+        else:
+            foto.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Foto editada correctamente',
+            'foto_id': foto.id
+        })
+        
+    except Foto.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Foto no encontrada'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 # 📄 GENERAR PDF CON VERIFICACIÓN DE IMÁGENES
 @login_required
 @user_passes_test(lambda u: is_ingeniero(u) or is_superusuario(u))

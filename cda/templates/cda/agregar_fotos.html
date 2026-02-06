@@ -2,6 +2,7 @@
 
 {% block extra_css %}
 <style>
+    /* ===== ESTILOS EXISTENTES ===== */
     .camera-container {
         transition: all 0.3s ease;
     }
@@ -95,18 +96,843 @@
     .card-img-top:hover {
         transform: scale(1.03);
     }
+    
+    /* ===== NUEVOS ESTILOS CORREGIDOS ===== */
+    
+    /* Controles de cámara avanzados */
+    .camera-controls {
+        background: rgba(0,0,0,0.7);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .control-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+        background: rgba(255,255,255,0.1);
+        color: white;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+    
+    .control-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.2);
+    }
+    
+    .control-btn.active {
+        background: #007bff !important;
+        border-color: #007bff !important;
+    }
+    
+    .slider-container {
+        background: rgba(255,255,255,0.1);
+        border-radius: 20px;
+        padding: 10px 15px;
+        margin: 10px 0;
+    }
+    
+    /* CONTENEDOR DE VIDEO CON ZOOM CONTROLADO */
+    .video-zoom-wrapper {
+        position: relative;
+        width: 100%;
+        overflow: hidden;
+        border-radius: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .video-zoom-container {
+        width: 100%;
+        height: 100%;
+        transform-origin: center center;
+        transition: transform 0.3s ease;
+    }
+    
+    /* Editor de fotos */
+    .editor-container {
+        position: relative;
+        margin-bottom: 15px;
+    }
+    
+    /* ===== PANEL DE HERRAMIENTAS MEJORADO ===== */
+    /* Panel completamente responsivo y limitado al lado izquierdo */
+    .editor-tools {
+        position: fixed;
+        top: 80px;
+        left: 20px;
+        z-index: 1050;
+        background: rgba(0, 0, 0, 0.95);
+        border-radius: 12px;
+        padding: 15px;
+        display: none;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        user-select: none;
+        
+        width: 320px;
+        max-height: 75vh;
+        overflow-y: auto;
+    }
+    
+    .editor-tools.dragging {
+        opacity: 0.95;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8) !important;
+        z-index: 1060 !important;
+        transition: none !important;
+    }
+    
+    .editor-tools.dragging * {
+        pointer-events: none !important;
+    }
+    
+    .editor-tools.dragging .editor-header {
+        pointer-events: auto !important;
+        cursor: grabbing !important;
+    }
+    
+    .editor-header {
+        padding-bottom: 12px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: grab !important;
+        user-select: none !important;
+    }
+    
+    .editor-header:active {
+        cursor: grabbing !important;
+    }
+    
+    .editor-title {
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .editor-close-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1.2rem;
+        padding: 0;
+    }
+    
+    .editor-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .tool-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 4px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+        font-size: 1.1rem;
+    }
+    
+    .tool-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .tool-btn.active {
+        background: #007bff;
+        border-color: #00aaff;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
+    }
+    
+    /* Paleta de colores */
+    .color-palette {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+        justify-content: center;
+    }
+    
+    .color-item {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    
+    .color-item:hover {
+        transform: scale(1.2);
+        border-color: white;
+    }
+    
+    .color-item.active {
+        border-color: white;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        transform: scale(1.1);
+    }
+    
+    .editor-section {
+        margin-bottom: 15px;
+    }
+    
+    .section-title {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .col-md-6:last-child {
+        position: relative;
+        z-index: 5;
+    }
+    
+    .photo-card-container,
+    .photo-card,
+    .card-img-top {
+        position: relative;
+        z-index: 10 !important;
+        pointer-events: auto !important;
+    }
+    
+    .editor-tools {
+        z-index: 20;
+    }
+    
+    /* ===== CARRUSEL DE IMÁGENES ===== */
+    .carousel-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 9999;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .carousel-container {
+        width: 90%;
+        height: 90%;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .carousel-img {
+        max-width: 95%;
+        max-height: 85vh;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        object-fit: contain;
+        transition: opacity 0.3s ease;
+    }
+    
+    .carousel-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.2);
+        border: 2px solid white;
+        color: white;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        z-index: 10;
+    }
+    
+    .carousel-nav:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    .carousel-prev {
+        left: 20px;
+    }
+    
+    .carousel-next {
+        right: 20px;
+    }
+    
+    .carousel-info {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 90%;
+        text-align: center;
+        color: white;
+        padding: 20px;
+        background: rgba(0,0,0,0.7);
+        border-radius: 10px;
+        max-width: 800px;
+    }
+    
+    .carousel-counter {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+    
+    .carousel-comment {
+        font-size: 1rem;
+        opacity: 0.9;
+        line-height: 1.4;
+    }
+    
+    .carousel-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: white;
+        font-size: 2.5rem;
+        cursor: pointer;
+        z-index: 10;
+        background: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+    }
+    
+    .carousel-close:hover {
+        background: rgba(0,0,0,0.8);
+        transform: scale(1.1);
+    }
+    
+    /* ===== TARJETAS DE FOTOS CON BOTÓN ELIMINAR ===== */
+    .photo-card-container {
+        position: relative;
+        transition: all 0.3s;
+    }
+    
+    .photo-card {
+        position: relative;
+        transition: all 0.3s;
+        overflow: hidden;
+    }
+    
+    .photo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    
+    /* BOTONES DE ACCIÓN EN FOTOS EXISTENTES */
+    .photo-actions {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        z-index: 20;
+        display: flex;
+        justify-content: space-between;
+        pointer-events: none;
+    }
+    
+    .photo-actions > * {
+        pointer-events: auto;
+    }
+    
+    /* Botón eliminar foto */
+    .delete-photo-btn {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(220, 53, 69, 0.95);
+        color: white;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 15;
+        transition: all 0.3s;
+        opacity: 0;
+        transform: scale(0.8);
+        font-size: 1rem;
+    }
+    
+    /* Botón editar foto */
+    .edit-photo-btn {
+        position: relative;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(13, 110, 253, 0.95);
+        color: white;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 15;
+        transition: all 0.3s;
+        opacity: 0;
+        transform: scale(0.8);
+        font-size: 1rem;
+    }
+    
+    .photo-card:hover .delete-photo-btn,
+    .photo-card:hover .edit-photo-btn {
+        opacity: 1;
+        transform: scale(1);
+    }
+    
+    .delete-photo-btn:hover {
+        background: rgba(220, 53, 69, 1);
+        transform: scale(1.1) !important;
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.7);
+    }
+    
+    .edit-photo-btn:hover {
+        background: rgba(13, 110, 253, 1);
+        transform: scale(1.1) !important;
+        box-shadow: 0 0 10px rgba(13, 110, 253, 0.7);
+    }
+    
+    /* Canvas para dibujar sobre fotos */
+    .drawing-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: auto;
+        z-index: 5;
+        border-radius: 10px;
+        cursor: crosshair;
+    }
+    
+    /* ===== MODAL DE EDICIÓN DE COMENTARIO SOLAMENTE ===== */
+    .edit-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 9998;
+        justify-content: center;
+        align-items: center;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    
+    .edit-modal-content {
+        background: white;
+        border-radius: 12px;
+        width: 95%;
+        max-width: 800px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    
+    .edit-modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        border-radius: 12px 12px 0 0;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+    
+    .edit-modal-body {
+        padding: 20px;
+    }
+    
+    .edit-modal-footer {
+        background: #f8f9fa;
+        padding: 15px 20px;
+        border-top: 1px solid #dee2e6;
+        border-radius: 0 0 12px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        bottom: 0;
+    }
+    
+    /* Contenedor de imagen en modal de edición SIMPLIFICADO */
+    .edit-image-container {
+        position: relative;
+        background: #f8f9fa;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        min-height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+    }
+    
+    #editPreviewImg {
+        max-width: 100%;
+        max-height: 500px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        cursor: default !important; /* No se puede dibujar */
+    }
+    
+    /* Notificaciones */
+    .custom-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10000;
+        min-width: 300px;
+        animation: slideIn 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+    
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    /* ===== RESPONSIVE DESIGN ===== */
+    
+    /* TABLETS (768px o menos) */
+    @media (max-width: 768px) {
+        .carousel-nav {
+            width: 50px;
+            height: 50px;
+            font-size: 1.2rem;
+        }
+        
+        .carousel-prev {
+            left: 10px;
+        }
+        
+        .carousel-next {
+            right: 10px;
+        }
+        
+        .control-btn {
+            width: 45px;
+            height: 45px;
+            font-size: 1rem;
+        }
+        
+        .editor-tools {
+            position: fixed;
+            top: 70px;
+            left: 10px;
+            right: 10px;
+            width: auto;
+            max-width: calc(100% - 20px);
+            margin: 0;
+            padding: 12px;
+        }
+        
+        .tool-btn {
+            width: 38px;
+            height: 38px;
+            font-size: 0.9rem;
+            margin: 3px;
+        }
+        
+        .color-item {
+            width: 28px;
+            height: 28px;
+        }
+        
+        .delete-photo-btn,
+        .edit-photo-btn {
+            width: 32px;
+            height: 32px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .edit-modal-content {
+            width: 98%;
+            max-height: 95vh;
+            margin: 10px;
+        }
+    }
+    
+    /* MÓVILES (576px o menos) */
+    @media (max-width: 576px) {
+        .carousel-nav {
+            width: 40px;
+            height: 40px;
+            font-size: 1rem;
+        }
+        
+        .carousel-close {
+            width: 40px;
+            height: 40px;
+            font-size: 2rem;
+        }
+        
+        .control-btn {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .editor-tools {
+            top: 60px;
+            left: 5px;
+            right: 5px;
+            max-width: calc(100% - 10px);
+            padding: 10px;
+        }
+        
+        .editor-header {
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        
+        .tool-btn {
+            width: 35px;
+            height: 35px;
+            font-size: 0.85rem;
+            margin: 2px;
+        }
+        
+        .color-palette {
+            gap: 6px;
+        }
+        
+        .color-item {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .editor-title {
+            font-size: 1rem;
+        }
+        
+        .delete-photo-btn,
+        .edit-photo-btn {
+            width: 30px;
+            height: 30px;
+            font-size: 0.8rem;
+            top: 5px;
+            right: 5px;
+            opacity: 1;
+        }
+        
+        .photo-card:hover .delete-photo-btn,
+        .photo-card:hover .edit-photo-btn {
+            opacity: 1;
+        }
+        
+        .edit-modal {
+            padding: 10px;
+        }
+        
+        .edit-modal-content {
+            width: 100%;
+            height: 100%;
+            max-height: 100vh;
+            border-radius: 0;
+            margin: 0;
+        }
+        
+        .edit-modal-body {
+            padding: 15px;
+        }
+        
+        .edit-modal-footer {
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .edit-modal-footer .btn {
+            width: 100%;
+        }
+    }
+    
+    /* PC GRANDES (1200px o más) */
+    @media (min-width: 1200px) {
+        .editor-tools {
+            width: 350px;
+        }
+    }
+    
+    /* Estados de carga */
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 30px;
+        height: 30px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Modal para imagen ampliada -->
+<!-- ===== MODAL DEL CARRUSEL ===== -->
+<div id="carouselModal" class="carousel-modal">
+    <span class="carousel-close" onclick="closeCarousel()">&times;</span>
+    
+    <div class="carousel-container">
+        <div class="carousel-nav carousel-prev" onclick="prevPhoto()">
+            <i class="bi bi-chevron-left"></i>
+        </div>
+        
+        <div class="carousel-nav carousel-next" onclick="nextPhoto()">
+            <i class="bi bi-chevron-right"></i>
+        </div>
+        
+        <div class="text-center" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+            <img id="carouselImage" class="carousel-img" src="" alt="Foto placa">
+        </div>
+        
+        <div class="carousel-info">
+            <div id="carouselCounter" class="carousel-counter">1 de {{ fotos.count }}</div>
+            <div id="carouselComment" class="carousel-comment">Cargando comentario...</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== MODAL PARA IMAGEN AMPLIADA ===== -->
 <div id="imageModal" class="modal-image">
     <span class="close-modal">&times;</span>
     <img class="modal-image-content" id="modalImg">
     <div id="modalCaption" class="image-caption"></div>
 </div>
 
+<!-- ===== MODAL DE EDICIÓN SOLO COMENTARIO ===== -->
+<div id="editModal" class="edit-modal">
+    <div class="edit-modal-content">
+        <div class="edit-modal-header">
+            <h5 class="modal-title mb-0">
+                <i class="bi bi-pencil-square me-2"></i>
+                Editar Comentario - Placa: <span id="editPlacaNumero">{{ placa.numero_placa }}</span>
+                <span class="badge bg-warning ms-2" id="editFotoIdBadge">#0</span>
+            </h5>
+            <button type="button" class="btn-close btn-close-white" onclick="closeEditModal()"></button>
+        </div>
+        
+        <div class="edit-modal-body">
+            <input type="hidden" id="editingFotoId" value="">
+            
+            <div class="row">
+                <!-- COLUMNA IZQUIERDA: IMAGEN (SOLO VISUALIZACIÓN) -->
+                <div class="col-lg-8 mb-4">
+                    <div class="edit-image-container">
+                        <img id="editPreviewImg" class="img-fluid" alt="Foto para editar">
+                        <!-- NO HAY CANVAS PARA DIBUJAR -->
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Solo puede editar el comentario de la foto. Los trazos en la imagen no se pueden modificar.
+                    </div>
+                </div>
+                
+                <!-- COLUMNA DERECHA: FORMULARIO DE COMENTARIO -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6 class="card-title">
+                                <i class="bi bi-chat-text me-1"></i> Comentario
+                            </h6>
+                            <textarea id="editComentarioInput" class="form-control" rows="6" 
+                                      placeholder="Describa lo que se observa en la fotografía..." required></textarea>
+                            <div class="form-text small mt-2">
+                                Este comentario se actualizará en la base de datos.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="edit-modal-footer">
+            <div class="d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-outline-secondary" onclick="closeEditModal()">
+                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-success" onclick="guardarEdicionComentario()">
+                    <i class="bi bi-check-lg me-1"></i> Guardar Comentario
+                </button>
+            </div>
+            <small class="text-muted">
+                <i class="bi bi-info-circle"></i> Solo edición de comentario permitida
+            </small>
+        </div>
+    </div>
+</div>
+
 <div class="row">
+    <!-- ===== COLUMNA IZQUIERDA: CÁMARA ===== -->
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -130,26 +956,135 @@
                     </button>
                 </div>
 
-                <!-- PASO 2: CÁMARA ACTIVA -->
+                <!-- PASO 2: CÁMARA ACTIVA CON CONTROLES AVANZADOS -->
                 <div id="cameraActive" class="text-center camera-container" style="display: none;">
-                    <video id="video" autoplay playsinline class="video-preview w-100 mb-3 video-normal"></video>
+                    <!-- CONTROLES DE CÁMARA -->
+                    <div id="cameraControls" class="camera-controls mb-3" style="display: none;">
+                        <div class="row justify-content-center align-items-center">
+                            <div class="col-auto">
+                                <button id="flashBtn" class="control-btn" title="Activar/Desactivar Flash">
+                                    <i class="bi bi-lightning"></i>
+                                </button>
+                            </div>
+                            <div class="col-auto">
+                                <button id="focusBtn" class="control-btn" title="Enfocar automáticamente">
+                                    <i class="bi bi-crosshair"></i>
+                                </button>
+                            </div>
+                            <div class="col-auto">
+                                <button id="zoomInBtn" class="control-btn" title="Acercar">
+                                    <i class="bi bi-zoom-in"></i>
+                                </button>
+                            </div>
+                            <div class="col-auto">
+                                <button id="zoomOutBtn" class="control-btn" title="Alejar">
+                                    <i class="bi bi-zoom-out"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="slider-container mt-3">
+                            <label class="text-white small d-block mb-2">Brillo: <span id="brightnessValue">100</span>%</label>
+                            <input type="range" id="brightnessSlider" class="form-range" min="50" max="150" value="100">
+                        </div>
+                        
+                        <div class="slider-container">
+                            <label class="text-white small d-block mb-2">Contraste: <span id="contrastValue">100</span>%</label>
+                            <input type="range" id="contrastSlider" class="form-range" min="50" max="150" value="100">
+                        </div>
+                    </div>
+                    
+                    <!-- VIDEO DE LA CÁMARA CON CONTENEDOR DE ZOOM -->
+                    <div class="video-zoom-wrapper">
+                        <div class="video-zoom-container" id="videoZoomContainer">
+                            <video id="video" autoplay playsinline class="video-preview w-100 mb-3 video-normal"></video>
+                        </div>
+                    </div>
+                    
                     <div class="d-grid gap-2">
+                        <button id="toggleControlsBtn" class="btn btn-outline-secondary btn-sm mb-2">
+                            <i class="bi bi-sliders"></i> Mostrar Controles
+                        </button>
                         <button id="captureBtn" class="btn btn-danger btn-action">
                             <i class="bi bi-camera-fill"></i> Capturar Foto
                         </button>
                     </div>
                 </div>
 
-                <!-- PASO 3: VISTA PREVIA -->
+                <!-- PASO 3: VISTA PREVIA CON EDICIÓN -->
                 <div id="photoPreview" class="text-center camera-container" style="display: none;">
-                    <img id="previewImg" class="video-preview w-100 mb-3 video-normal">
+                    <!-- HERRAMIENTAS DE EDICIÓN FLOTANTES Y ARRASTRABLES -->
+                    <div id="editorTools" class="editor-tools">
+                        <div class="editor-header" id="editorHeader">
+                            <div class="editor-title">
+                                <i class="bi bi-pencil-fill"></i> Herramientas de Edición
+                            </div>
+                            <button id="closeEditorBtn" class="editor-close-btn" title="Cerrar herramientas">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="editor-section">
+                            <div class="section-title">Colores:</div>
+                            <div class="color-palette">
+                                <div class="color-item active" style="background: #ff0000;" data-color="#ff0000" title="Rojo"></div>
+                                <div class="color-item" style="background: #00ff00;" data-color="#00ff00" title="Verde"></div>
+                                <div class="color-item" style="background: #0000ff;" data-color="#0000ff" title="Azul"></div>
+                                <div class="color-item" style="background: #ffff00;" data-color="#ffff00" title="Amarillo"></div>
+                                <div class="color-item" style="background: #ff00ff;" data-color="#ff00ff" title="Magenta"></div>
+                                <div class="color-item" style="background: #ffffff;" data-color="#ffffff" title="Blanco"></div>
+                                <div class="color-item" style="background: #000000;" data-color="#000000" title="Negro"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-section">
+                            <div class="section-title">Herramientas:</div>
+                            <div class="d-flex justify-content-center flex-wrap">
+                                <button id="brushTool" class="tool-btn active" title="Pincel">
+                                    <i class="bi bi-brush"></i>
+                                </button>
+                                <button id="arrowTool" class="tool-btn" title="Flecha">
+                                    <i class="bi bi-arrow-right"></i>
+                                </button>
+                                <button id="textTool" class="tool-btn" title="Texto">
+                                    <i class="bi bi-fonts"></i>
+                                </button>
+                                <button id="clearDrawBtn" class="tool-btn" style="background: rgba(220, 53, 69, 0.8);" title="Limpiar dibujos">
+                                    <i class="bi bi-eraser"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="editor-section">
+                            <div class="slider-container">
+                                <label class="text-white small d-block mb-2">Tamaño: <span id="brushSizeValue">5</span>px</label>
+                                <input type="range" id="brushSize" class="form-range" min="1" max="20" value="5">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- CONTENEDOR DE LA IMAGEN CON CANVAS PARA DIBUJAR -->
+                    <div class="editor-container">
+                        <img id="previewImg" class="video-preview w-100 mb-3 video-normal" style="display: block;">
+                        <canvas id="drawingCanvas" class="drawing-canvas"></canvas>
+                    </div>
+                    
                     <div class="d-grid gap-2">
-                        <button id="retakeBtn" class="btn btn-warning btn-action">
-                            <i class="bi bi-arrow-repeat"></i> Volver a Capturar
+                        <button id="toggleEditorBtn" class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-pencil"></i> Mostrar Herramientas
                         </button>
-                        <button id="acceptBtn" class="btn btn-success btn-action">
-                            <i class="bi bi-check-lg"></i> Confirmar Foto
-                        </button>
+                        <div class="row">
+                            <div class="col-6">
+                                <button id="retakeBtn" class="btn btn-warning btn-action w-100">
+                                    <i class="bi bi-arrow-repeat"></i> Volver a Capturar
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button id="acceptBtn" class="btn btn-success btn-action w-100">
+                                    <i class="bi bi-check-lg"></i> Confirmar Foto
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -161,6 +1096,7 @@
                         </label>
                         <textarea id="comentarioInput" class="form-control" rows="3" 
                                   placeholder="Describa lo que se observa en la fotografía..." required></textarea>
+                        <div class="form-text">Este comentario se guardará junto con la foto.</div>
                     </div>
                     
                     <div class="d-grid gap-2">
@@ -171,11 +1107,11 @@
                 </div>
 
                 <input type="hidden" id="fotoData">
-
             </div>
         </div>
     </div>
 
+    <!-- ===== COLUMNA DERECHA: FOTOS REGISTRADAS ===== -->
     <div class="col-md-6">
         <div class="card shadow-sm">
             <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
@@ -190,23 +1126,63 @@
             </div>
             <div class="card-body">
                 {% if fotos %}
-                    <div class="row">
+                    <div class="row" id="photosContainer">
                         {% for foto in fotos %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card h-100 shadow-sm">
-                                <img src="{{ foto.imagen.url }}" class="card-img-top" alt="Foto placa" 
-                                     style="height: 120px; object-fit: cover;"
-                                     onclick="openModal('{{ foto.imagen.url }}', '{{ foto.comentario }}')">
+                        <div class="col-md-6 mb-3 photo-card-container" data-foto-id="{{ foto.id }}">
+                            <div class="card h-100 shadow-sm photo-card">
+                                <!-- ===== BOTONES DE ACCIÓN: EDITAR Y ELIMINAR ===== -->
+                                <!-- Solo visible para ingenieros/superusuarios -->
+                                {% if user.userprofile.role in 'ingeniero superusuario' or user.is_superuser %}
+                                <div class="photo-actions">
+                                    <button class="edit-photo-btn" 
+                                            onclick="editarFotoExistente({{ foto.id }}, '{{ foto.imagen.url }}', '{{ foto.comentario|escapejs }}')"
+                                            title="Editar comentario" 
+                                            data-foto-id="{{ foto.id }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    
+                                    <button class="delete-photo-btn" 
+                                            onclick="eliminarFoto({{ foto.id }}, this)" 
+                                            title="Eliminar esta foto" 
+                                            data-foto-id="{{ foto.id }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                {% endif %}
+                                
+                                <!-- IMAGEN CON CLICK PARA CARRUSEL -->
+                                <img src="{{ foto.imagen.url }}" 
+                                     class="card-img-top" 
+                                     alt="Foto placa {{ foto.id }}" 
+                                     style="height: 120px; object-fit: cover; cursor: pointer;"
+                                     onclick="openCarousel({{ forloop.counter0 }})"
+                                     data-foto-id="{{ foto.id }}"
+                                     data-comment="{{ foto.comentario }}"
+                                     data-imagen-url="{{ foto.imagen.url }}">
+                                
                                 <div class="card-body">
                                     <p class="card-text small mb-1">
                                         <strong>Comentario:</strong> 
                                         <span class="d-block text-truncate" style="max-width: 150px;" title="{{ foto.comentario }}">
-                                            {{ foto.comentario }}
+                                            {{ foto.comentario|default:"Sin comentario" }}
                                         </span>
                                     </p>
-                                    <small class="text-muted">
+                                    <small class="text-muted d-block">
                                         <i class="bi bi-clock"></i> {{ foto.fecha_creacion|date:"d/m/Y h:i A" }}
                                     </small>
+                                    {% if foto.usuario %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-person"></i> {{ foto.usuario.username }}
+                                    </small>
+                                    {% endif %}
+                                    {% if foto.ultima_edicion %}
+                                    <small class="text-primary d-block">
+                                        <i class="bi bi-pencil-square"></i> Editada: {{ foto.ultima_edicion|date:"d/m/Y h:i A" }}
+                                        {% if foto.editado_por %}
+                                        por {{ foto.editado_por.username }}
+                                        {% endif %}
+                                    </small>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -216,6 +1192,7 @@
                     <div class="text-center text-muted py-4">
                         <i class="bi bi-inbox" style="font-size: 2rem;"></i>
                         <p class="mt-2">No hay fotos registradas para esta placa</p>
+                        <p class="small">Use la cámara a la izquierda para tomar la primera foto</p>
                     </div>
                 {% endif %}
             </div>
@@ -223,69 +1200,216 @@
     </div>
 </div>
 
+<!-- ===== SCRIPT PRINCIPAL CON HERRAMIENTAS SIMPLIFICADAS ===== -->
 <script>
+// ===== VARIABLES GLOBALES =====
 let cameraStream = null;
+let cameraSettings = {
+    flash: false,
+    zoom: 1,
+    brightness: 1.0,
+    contrast: 1.0,
+    focusMode: 'continuous'
+};
 
-// 1. ACTIVAR CÁMARA
+// Variables para edición de fotos NUEVAS
+let isDrawing = false;
+let currentTool = 'brush';
+let currentColor = '#ff0000';
+let brushSize = 5;
+let startX = 0;
+let startY = 0;
+let currentX = 0;
+let currentY = 0;
+let drawingCanvas = null;
+let drawingCtx = null;
+let isEditorVisible = false;
+let isDrawingShape = false;
+let shapePreviewCanvas = null;
+let shapePreviewCtx = null;
+
+// Variables para arrastre del panel de herramientas
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let originalLeft = 0;
+let originalTop = 0;
+
+// Variables para carrusel
+let currentCarouselIndex = 0;
+let carouselPhotos = [];
+
+// ===== FUNCIONES DE NOTIFICACIÓN =====
+function showNotification(message, type = 'info') {
+    document.querySelectorAll('.custom-notification').forEach(n => n.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} custom-notification`;
+    notification.innerHTML = `
+        <div class="d-flex align-items-center">
+            <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : type === 'warning' ? 'bi-exclamation-triangle-fill' : type === 'danger' ? 'bi-x-circle-fill' : 'bi-info-circle-fill'} me-2"></i>
+            <span>${message}</span>
+            <button type="button" class="btn-close btn-close-white ms-auto" onclick="this.parentElement.parentElement.remove()"></button>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 4000);
+}
+
+// ===== FUNCIONES DE CÁMARA AVANZADA =====
+
 document.getElementById('startCameraBtn').addEventListener('click', async function() {
     try {
+        showNotification('Iniciando cámara...', 'info');
+        
         if (cameraStream) {
             cameraStream.getTracks().forEach(track => track.stop());
         }
         
-        // Configuración para móviles (cámara trasera) y PC (cámara frontal o trasera según disponibilidad)
         const constraints = {
             video: {
                 width: { ideal: 1280 },
                 height: { ideal: 720 },
-                facingMode: 'environment' // Priorizar cámara trasera en móviles
-            }, 
-            audio: false 
+                facingMode: 'environment'
+            },
+            audio: false
         };
         
         cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
         
         const video = document.getElementById('video');
         video.srcObject = cameraStream;
+        
         document.getElementById('cameraStart').style.display = 'none';
         document.getElementById('cameraActive').style.display = 'block';
         
-        // Aumentar el tamaño del video para la captura
         video.classList.remove('video-normal');
         video.classList.add('video-large');
+        
+        showNotification('Cámara activada correctamente', 'success');
         
     } catch (error) {
         console.error('Error al acceder a la cámara:', error);
         
-        // Intentar con cámara frontal si falla la trasera (útil para PC)
         try {
             const constraints = {
                 video: {
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
-                    facingMode: 'user' // Cámara frontal
-                }, 
-                audio: false 
+                    facingMode: 'user'
+                },
+                audio: false
             };
             
             cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
             
             const video = document.getElementById('video');
             video.srcObject = cameraStream;
+            
             document.getElementById('cameraStart').style.display = 'none';
             document.getElementById('cameraActive').style.display = 'block';
             
-            // Aumentar el tamaño del video para la captura
             video.classList.remove('video-normal');
             video.classList.add('video-large');
             
+            showNotification('Cámara frontal activada', 'success');
+            
         } catch (secondError) {
-            alert('No se pudo acceder a la cámara. Asegúrate de dar los permisos necesarios. Error: ' + secondError.message);
+            showNotification('Error al acceder a la cámara. Verifique los permisos.', 'danger');
         }
     }
 });
 
-// 2. TOMAR FOTO
+document.getElementById('toggleControlsBtn').addEventListener('click', function() {
+    const controls = document.getElementById('cameraControls');
+    if (controls.style.display === 'none' || controls.style.display === '') {
+        controls.style.display = 'block';
+        this.innerHTML = '<i class="bi bi-sliders"></i> Ocultar Controles';
+    } else {
+        controls.style.display = 'none';
+        this.innerHTML = '<i class="bi bi-sliders"></i> Mostrar Controles';
+    }
+});
+
+document.getElementById('flashBtn').addEventListener('click', function() {
+    if (cameraStream) {
+        const track = cameraStream.getVideoTracks()[0];
+        if ('torch' in track.getCapabilities()) {
+            const torchState = !cameraSettings.flash;
+            track.applyConstraints({ advanced: [{ torch: torchState }] })
+                .then(() => {
+                    cameraSettings.flash = torchState;
+                    this.classList.toggle('active', torchState);
+                    showNotification(torchState ? 'Flash activado' : 'Flash desactivado', 'info');
+                })
+                .catch(err => {
+                    console.error('Error al cambiar flash:', err);
+                    showNotification('Flash no disponible', 'warning');
+                });
+        } else {
+            showNotification('Flash no disponible en este dispositivo', 'warning');
+        }
+    }
+});
+
+document.getElementById('focusBtn').addEventListener('click', function() {
+    if (cameraStream) {
+        const track = cameraStream.getVideoTracks()[0];
+        if ('focusMode' in track.getCapabilities()) {
+            track.applyConstraints({ advanced: [{ focusMode: 'continuous' }] })
+                .then(() => {
+                    showNotification('Enfoque automático activado', 'success');
+                    this.classList.add('active');
+                    setTimeout(() => this.classList.remove('active'), 1000);
+                })
+                .catch(err => {
+                    console.error('Error al enfocar:', err);
+                    showNotification('Error al enfocar', 'warning');
+                });
+        } else {
+            showNotification('Enfoque automático no disponible', 'warning');
+        }
+    }
+});
+
+let currentZoom = 1;
+document.getElementById('zoomInBtn').addEventListener('click', function() {
+    if (currentZoom < 3) {
+        currentZoom += 0.5;
+        const zoomContainer = document.getElementById('videoZoomContainer');
+        zoomContainer.style.transform = `scale(${currentZoom})`;
+        showNotification(`Zoom: ${currentZoom.toFixed(1)}x`, 'info');
+    }
+});
+
+document.getElementById('zoomOutBtn').addEventListener('click', function() {
+    if (currentZoom > 1) {
+        currentZoom -= 0.5;
+        const zoomContainer = document.getElementById('videoZoomContainer');
+        zoomContainer.style.transform = `scale(${currentZoom})`;
+        showNotification(`Zoom: ${currentZoom.toFixed(1)}x`, 'info');
+    }
+});
+
+document.getElementById('brightnessSlider').addEventListener('input', function() {
+    cameraSettings.brightness = this.value / 100;
+    document.getElementById('video').style.filter = `brightness(${cameraSettings.brightness}) contrast(${cameraSettings.contrast})`;
+    document.getElementById('brightnessValue').textContent = this.value;
+});
+
+document.getElementById('contrastSlider').addEventListener('input', function() {
+    cameraSettings.contrast = this.value / 100;
+    document.getElementById('video').style.filter = `brightness(${cameraSettings.brightness}) contrast(${cameraSettings.contrast})`;
+    document.getElementById('contrastValue').textContent = this.value;
+});
+
 document.getElementById('captureBtn').addEventListener('click', function() {
     const video = document.getElementById('video');
     const canvas = document.createElement('canvas');
@@ -295,54 +1419,745 @@ document.getElementById('captureBtn').addEventListener('click', function() {
     canvas.height = video.videoHeight;
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    const imageData = canvas.toDataURL('image/jpeg', 0.8);
-    document.getElementById('previewImg').src = imageData;
+    const imageData = canvas.toDataURL('image/jpeg', 0.9);
+    const previewImg = document.getElementById('previewImg');
+    
     document.getElementById('fotoData').value = imageData;
     
     document.getElementById('cameraActive').style.display = 'none';
     document.getElementById('photoPreview').style.display = 'block';
     
-    // Restaurar el tamaño normal para la vista previa
-    const previewImg = document.getElementById('previewImg');
-    previewImg.classList.remove('video-large');
-    previewImg.classList.add('video-normal');
+    previewImg.onload = function() {
+        setTimeout(initDrawingCanvas, 100);
+    };
+    previewImg.src = imageData;
     
     if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
         cameraStream = null;
     }
+    
+    showNotification('Foto capturada. Puede editarla antes de guardar.', 'success');
 });
 
-// 3. VOLVER A TOMAR
+// ===== SISTEMA DE ARRASTRE =====
+
+function setupDraggableEditor() {
+    const header = document.getElementById('editorHeader');
+    
+    if (!header) return;
+    
+    header.addEventListener('mousedown', startDrag);
+    header.addEventListener('touchstart', startDragTouch, { passive: false });
+    
+    header.addEventListener('click', function(e) {
+        if (isDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+}
+
+function startDrag(e) {
+    if (e.target.closest('#closeEditorBtn')) {
+        return;
+    }
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    handleDragStart(e.clientX, e.clientY);
+}
+
+function startDragTouch(e) {
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (target.closest('#closeEditorBtn')) {
+        return;
+    }
+    
+    if (e.touches.length === 1) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        handleDragStart(touch.clientX, touch.clientY);
+    }
+}
+
+function handleDragStart(clientX, clientY) {
+    const editor = document.getElementById('editorTools');
+    if (!editor) return;
+    
+    isDragging = true;
+    editor.classList.add('dragging');
+    
+    dragStartX = clientX;
+    dragStartY = clientY;
+    
+    const currentLeft = editor.style.left;
+    const currentTop = editor.style.top;
+    
+    originalLeft = currentLeft ? parseInt(currentLeft) : 20;
+    originalTop = currentTop ? parseInt(currentTop) : 80;
+    
+    document.addEventListener('mousemove', onDragMove);
+    document.addEventListener('touchmove', onDragMoveTouch, { passive: false });
+    
+    document.addEventListener('mouseup', stopDrag);
+    document.addEventListener('touchend', stopDrag);
+    
+    document.body.style.userSelect = 'none';
+    document.body.style.webkitUserSelect = 'none';
+}
+
+function onDragMove(e) {
+    if (!isDragging) return;
+    e.preventDefault();
+    
+    updatePanelPosition(e.clientX, e.clientY);
+}
+
+function onDragMoveTouch(e) {
+    if (!isDragging || e.touches.length !== 1) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    updatePanelPosition(touch.clientX, touch.clientY);
+}
+
+function updatePanelPosition(clientX, clientY) {
+    const editor = document.getElementById('editorTools');
+    if (!editor) return;
+    
+    const deltaX = clientX - dragStartX;
+    const deltaY = clientY - dragStartY;
+    
+    let newLeft = originalLeft + deltaX;
+    let newTop = originalTop + deltaY;
+    
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const panelWidth = editor.offsetWidth;
+    const panelHeight = editor.offsetHeight;
+    
+    const minLeft = 5;
+    const maxLeft = (windowWidth * 0.45) - panelWidth - 5;
+    const minTop = 60;
+    const maxTop = windowHeight - panelHeight - 10;
+    
+    newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+    newTop = Math.max(minTop, Math.min(newTop, maxTop));
+    
+    editor.style.transition = 'none';
+    editor.style.left = newLeft + 'px';
+    editor.style.top = newTop + 'px';
+}
+
+function stopDrag() {
+    if (!isDragging) return;
+    
+    isDragging = false;
+    const editor = document.getElementById('editorTools');
+    
+    if (editor) {
+        editor.classList.remove('dragging');
+        
+        setTimeout(() => {
+            editor.style.transition = 'all 0.2s ease';
+        }, 10);
+    }
+    
+    document.removeEventListener('mousemove', onDragMove);
+    document.removeEventListener('touchmove', onDragMoveTouch);
+    document.removeEventListener('mouseup', stopDrag);
+    document.removeEventListener('touchend', stopDrag);
+    
+    document.body.style.userSelect = '';
+    document.body.style.webkitUserSelect = '';
+}
+
+// ===== FUNCIONES DE EDICIÓN DE FOTOS NUEVAS =====
+
+function initDrawingCanvas() {
+    const img = document.getElementById('previewImg');
+    drawingCanvas = document.getElementById('drawingCanvas');
+    drawingCtx = drawingCanvas.getContext('2d');
+    
+    const container = img.parentElement;
+    const width = container.offsetWidth;
+    const height = container.offsetHeight;
+    
+    drawingCanvas.width = width;
+    drawingCanvas.height = height;
+    drawingCanvas.style.width = width + 'px';
+    drawingCanvas.style.height = height + 'px';
+    
+    drawingCtx.clearRect(0, 0, width, height);
+    
+    shapePreviewCanvas = document.createElement('canvas');
+    shapePreviewCtx = shapePreviewCanvas.getContext('2d');
+    shapePreviewCanvas.width = width;
+    shapePreviewCanvas.height = height;
+    
+    setupDrawingEvents();
+}
+
+function setupDrawingEvents() {
+    if (!drawingCanvas) return;
+    
+    drawingCanvas.addEventListener('mousedown', startDrawing);
+    drawingCanvas.addEventListener('mousemove', draw);
+    drawingCanvas.addEventListener('mouseup', stopDrawing);
+    drawingCanvas.addEventListener('mouseout', stopDrawing);
+    
+    drawingCanvas.addEventListener('touchstart', handleTouchStart);
+    drawingCanvas.addEventListener('touchmove', handleTouchMove);
+    drawingCanvas.addEventListener('touchend', stopDrawing);
+}
+
+// Configurar herramientas
+document.querySelectorAll('.tool-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tool-btn').forEach(b => {
+            b.classList.remove('active');
+        });
+        
+        this.classList.add('active');
+        currentTool = this.id.replace('Tool', '');
+        
+        if (drawingCanvas) {
+            drawingCanvas.style.cursor = currentTool === 'text' ? 'text' : 'crosshair';
+        }
+    });
+});
+
+// Configurar colores
+document.querySelectorAll('.color-item').forEach(color => {
+    color.addEventListener('click', function() {
+        document.querySelectorAll('.color-item').forEach(c => c.classList.remove('active'));
+        
+        this.classList.add('active');
+        currentColor = this.dataset.color;
+    });
+});
+
+// Control de tamaño de pincel
+document.getElementById('brushSize').addEventListener('input', function() {
+    brushSize = parseInt(this.value);
+    document.getElementById('brushSizeValue').textContent = brushSize;
+});
+
+// Botón para limpiar dibujos
+document.getElementById('clearDrawBtn').addEventListener('click', function() {
+    if (drawingCtx && drawingCanvas) {
+        drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+        showNotification('Dibujos limpiados', 'info');
+    }
+});
+
+// Botón para cerrar editor
+document.getElementById('closeEditorBtn').addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+    
+    const editor = document.getElementById('editorTools');
+    const toggleBtn = document.getElementById('toggleEditorBtn');
+    
+    if (editor) {
+        editor.style.display = 'none';
+    }
+    
+    if (toggleBtn) {
+        toggleBtn.innerHTML = '<i class="bi bi-pencil"></i> Mostrar Herramientas';
+        toggleBtn.classList.remove('btn-info');
+        toggleBtn.classList.add('btn-outline-info');
+    }
+    
+    isEditorVisible = false;
+    
+    return false;
+});
+
+// Botón para mostrar/ocultar herramientas
+document.getElementById('toggleEditorBtn').addEventListener('click', function() {
+    const editor = document.getElementById('editorTools');
+    isEditorVisible = !isEditorVisible;
+    
+    if (isEditorVisible) {
+        editor.style.display = 'block';
+        this.innerHTML = '<i class="bi bi-pencil"></i> Ocultar Herramientas';
+        this.classList.add('btn-info');
+        this.classList.remove('btn-outline-info');
+        
+        positionEditorToolsSafe();
+    } else {
+        editor.style.display = 'none';
+        this.innerHTML = '<i class="bi bi-pencil"></i> Mostrar Herramientas';
+        this.classList.remove('btn-info');
+        this.classList.add('btn-outline-info');
+    }
+});
+
+function positionEditorToolsSafe() {
+    const editor = document.getElementById('editorTools');
+    
+    if (!editor) return;
+    
+    const editorWidth = editor.offsetWidth;
+    const editorHeight = editor.offsetHeight;
+    
+    let left = 20;
+    let top = 80;
+    
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    const maxLeft = (windowWidth * 0.45) - editorWidth;
+    if (left > maxLeft) {
+        left = maxLeft;
+    }
+    
+    const maxTop = windowHeight - editorHeight - 20;
+    if (top > maxTop) {
+        top = maxTop;
+    }
+    
+    if (left < 5) left = 5;
+    if (top < 60) top = 60;
+    
+    editor.style.left = left + 'px';
+    editor.style.top = top + 'px';
+    
+    originalLeft = left;
+    originalTop = top;
+}
+
+function startDrawing(e) {
+    if (!drawingCtx) return;
+    
+    const rect = drawingCanvas.getBoundingClientRect();
+    
+    if (e.type.includes('touch')) {
+        const touch = e.touches[0];
+        startX = touch.clientX - rect.left;
+        startY = touch.clientY - rect.top;
+    } else {
+        startX = e.clientX - rect.left;
+        startY = e.clientY - rect.top;
+    }
+    
+    currentX = startX;
+    currentY = startY;
+    
+    isDrawing = true;
+    isDrawingShape = (currentTool === 'arrow');
+    
+    if (currentTool === 'text') {
+        isDrawing = false;
+        isDrawingShape = false;
+        
+        setTimeout(() => {
+            const text = prompt('📝 Ingrese texto para agregar a la imagen:', 'Observación');
+            
+            if (text && text.trim() !== '') {
+                drawingCtx.font = `bold ${brushSize * 6}px Arial`;
+                drawingCtx.fillStyle = currentColor;
+                drawingCtx.textAlign = 'left';
+                drawingCtx.textBaseline = 'top';
+                
+                drawingCtx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+                drawingCtx.shadowBlur = 4;
+                drawingCtx.shadowOffsetX = 2;
+                drawingCtx.shadowOffsetY = 2;
+                
+                drawingCtx.fillText(text.trim(), startX, startY);
+                
+                drawingCtx.shadowColor = 'transparent';
+                drawingCtx.shadowBlur = 0;
+                drawingCtx.shadowOffsetX = 0;
+                drawingCtx.shadowOffsetY = 0;
+                
+                showNotification('Texto agregado a la imagen', 'success');
+            } else if (text !== null) {
+                showNotification('Texto vacío, no se agregó nada', 'warning');
+            }
+        }, 10);
+        return;
+    } 
+    else if (currentTool === 'brush') {
+        drawingCtx.beginPath();
+        drawingCtx.moveTo(startX, startY);
+        drawingCtx.strokeStyle = currentColor;
+        drawingCtx.lineWidth = brushSize;
+        drawingCtx.lineCap = 'round';
+        drawingCtx.lineJoin = 'round';
+    }
+}
+
+function draw(e) {
+    if (!isDrawing || !drawingCtx) return;
+    
+    const rect = drawingCanvas.getBoundingClientRect();
+    
+    if (e.type.includes('touch')) {
+        const touch = e.touches[0];
+        currentX = touch.clientX - rect.left;
+        currentY = touch.clientY - rect.top;
+    } else {
+        currentX = e.clientX - rect.left;
+        currentY = e.clientY - rect.top;
+    }
+    
+    if (currentTool === 'brush') {
+        drawingCtx.lineTo(currentX, currentY);
+        drawingCtx.stroke();
+    } else if (isDrawingShape) {
+        drawShapePreview();
+    }
+}
+
+function drawShapePreview() {
+    shapePreviewCtx.clearRect(0, 0, shapePreviewCanvas.width, shapePreviewCanvas.height);
+    
+    shapePreviewCtx.drawImage(drawingCanvas, 0, 0);
+    
+    // Configurar estilos para flecha
+    shapePreviewCtx.strokeStyle = currentColor;
+    shapePreviewCtx.fillStyle = 'transparent';
+    shapePreviewCtx.lineWidth = brushSize;
+    shapePreviewCtx.lineCap = 'round';
+    shapePreviewCtx.setLineDash([]); // Línea sólida
+    
+    if (currentTool === 'arrow') {
+        drawArrow(startX, startY, currentX, currentY, shapePreviewCtx);
+    }
+    
+    drawingCtx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+    drawingCtx.drawImage(shapePreviewCanvas, 0, 0);
+}
+
+function stopDrawing() {
+    if (!isDrawing || !drawingCtx) return;
+    
+    if (isDrawingShape) {
+        // Configurar estilos para flecha
+        drawingCtx.strokeStyle = currentColor;
+        drawingCtx.fillStyle = 'transparent';
+        drawingCtx.lineWidth = brushSize;
+        drawingCtx.lineCap = 'round';
+        drawingCtx.setLineDash([]); // Línea sólida
+        
+        // Dibujar flecha definitiva
+        if (currentTool === 'arrow') {
+            drawArrow(startX, startY, currentX, currentY, drawingCtx);
+        }
+    }
+    
+    isDrawing = false;
+    isDrawingShape = false;
+}
+
+function drawArrow(fromX, fromY, toX, toY, ctx) {
+    const headLength = brushSize * 3;
+    const dx = toX - fromX;
+    const dy = toY - fromY;
+    const angle = Math.atan2(dy, dx);
+    
+    ctx.beginPath();
+    ctx.moveTo(fromX, fromY);
+    ctx.lineTo(toX, toY);
+    ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI/6), 
+               toY - headLength * Math.sin(angle - Math.PI/6));
+    ctx.moveTo(toX, toY);
+    ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI/6), 
+               toY - headLength * Math.sin(angle + Math.PI/6));
+    ctx.stroke();
+}
+
+function handleTouchStart(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousedown', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        drawingCanvas.dispatchEvent(mouseEvent);
+    }
+}
+
+function handleTouchMove(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousemove', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        drawingCanvas.dispatchEvent(mouseEvent);
+    }
+}
+
+function saveEditedPhoto() {
+    const img = document.getElementById('previewImg');
+    const originalData = document.getElementById('fotoData').value;
+    
+    if (!drawingCanvas || !drawingCtx) {
+        return originalData;
+    }
+    
+    if (drawingCanvas.width === 0 || drawingCanvas.height === 0) {
+        console.warn('Canvas tiene dimensiones 0, usando imagen original');
+        return originalData;
+    }
+    
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    
+    tempCanvas.width = drawingCanvas.width;
+    tempCanvas.height = drawingCanvas.height;
+    
+    const tempImg = new Image();
+    tempImg.onload = function() {
+        tempCtx.drawImage(tempImg, 0, 0, tempCanvas.width, tempCanvas.height);
+        tempCtx.drawImage(drawingCanvas, 0, 0);
+        
+        const editedImage = tempCanvas.toDataURL('image/jpeg', 0.9);
+        document.getElementById('fotoData').value = editedImage;
+        img.src = editedImage;
+    };
+    tempImg.src = originalData;
+    
+    return document.getElementById('fotoData').value;
+}
+
+// ===== FUNCIONES DEL CARRUSEL =====
+
+function loadCarouselPhotos() {
+    carouselPhotos = [];
+    document.querySelectorAll('.photo-card-container img.card-img-top').forEach(img => {
+        carouselPhotos.push({
+            src: img.src,
+            comment: img.dataset.comment || 'Sin comentario',
+            id: img.dataset.fotoId
+        });
+    });
+}
+
+function openCarousel(index) {
+    currentCarouselIndex = index;
+    loadCarouselPhotos();
+    
+    if (carouselPhotos.length === 0) return;
+    
+    const modal = document.getElementById('carouselModal');
+    const carouselImage = document.getElementById('carouselImage');
+    const carouselCounter = document.getElementById('carouselCounter');
+    const carouselComment = document.getElementById('carouselComment');
+    
+    carouselImage.src = carouselPhotos[index].src;
+    carouselCounter.textContent = `${index + 1} de ${carouselPhotos.length}`;
+    carouselComment.textContent = carouselPhotos[index].comment;
+    
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCarousel() {
+    document.getElementById('carouselModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function prevPhoto() {
+    if (carouselPhotos.length === 0) return;
+    
+    currentCarouselIndex = (currentCarouselIndex - 1 + carouselPhotos.length) % carouselPhotos.length;
+    
+    const carouselImage = document.getElementById('carouselImage');
+    const carouselCounter = document.getElementById('carouselCounter');
+    const carouselComment = document.getElementById('carouselComment');
+    
+    carouselImage.style.opacity = '0.3';
+    
+    setTimeout(() => {
+        carouselImage.src = carouselPhotos[currentCarouselIndex].src;
+        carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
+        carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
+        carouselImage.style.opacity = '1';
+    }, 200);
+}
+
+function nextPhoto() {
+    if (carouselPhotos.length === 0) return;
+    
+    currentCarouselIndex = (currentCarouselIndex + 1) % carouselPhotos.length;
+    
+    const carouselImage = document.getElementById('carouselImage');
+    const carouselCounter = document.getElementById('carouselCounter');
+    const carouselComment = document.getElementById('carouselComment');
+    
+    carouselImage.style.opacity = '0.3';
+    
+    setTimeout(() => {
+        carouselImage.src = carouselPhotos[currentCarouselIndex].src;
+        carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
+        carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
+        carouselImage.style.opacity = '1';
+    }, 200);
+}
+
+// ===== FUNCIÓN PARA ELIMINAR FOTOS =====
+
+function eliminarFoto(fotoId, button) {
+    if (!confirm('¿Está seguro de eliminar esta foto?\n\nEsta acción no se puede deshacer y la foto se perderá permanentemente.')) {
+        return;
+    }
+    
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+    button.disabled = true;
+    button.style.pointerEvents = 'none';
+    
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (!csrfToken) {
+        showNotification('❌ Error de seguridad: Token CSRF no encontrado', 'danger');
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+        return;
+    }
+    
+    console.log(`Enviando solicitud para eliminar foto ID: ${fotoId}`);
+    
+    fetch(`/cda/fotos/${fotoId}/eliminar/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken.value,
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ foto_id: fotoId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            const cardContainer = button.closest('.photo-card-container');
+            
+            if (cardContainer) {
+                cardContainer.style.transition = 'all 0.4s ease';
+                cardContainer.style.opacity = '0';
+                cardContainer.style.transform = 'scale(0.8) translateY(20px)';
+                
+                setTimeout(() => {
+                    cardContainer.remove();
+                    
+                    const remainingPhotos = document.querySelectorAll('.photo-card-container').length;
+                    
+                    const badge = document.querySelector('.card-header .badge');
+                    if (badge) {
+                        badge.textContent = `${remainingPhotos} foto${remainingPhotos !== 1 ? 's' : ''}`;
+                    }
+                    
+                    const title = document.querySelector('.card-header h5');
+                    if (title) {
+                        const baseText = title.textContent.split('(')[0].trim();
+                        title.innerHTML = `<i class="bi bi-images"></i> ${baseText} (${remainingPhotos})`;
+                    }
+                    
+                    loadCarouselPhotos();
+                    
+                    showNotification('✅ Foto eliminada correctamente', 'success');
+                    
+                    if (remainingPhotos === 0) {
+                        const cardBody = document.querySelector('.col-md-6:last-child .card-body');
+                        if (cardBody) {
+                            cardBody.innerHTML = `
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                    <p class="mt-2">No hay fotos registradas para esta placa</p>
+                                    <p class="small">Use la cámara a la izquierda para tomar la primera foto</p>
+                                </div>
+                            `;
+                        }
+                    }
+                }, 400);
+            } else {
+                showNotification('✅ Foto eliminada. Actualizando...', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        } else {
+            const errorMsg = data.error || 'Error desconocido';
+            showNotification(`❌ Error al eliminar la foto: ${errorMsg}`, 'danger');
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+            button.style.pointerEvents = 'auto';
+        }
+    })
+    .catch(error => {
+        console.error('Error en la solicitud AJAX:', error);
+        showNotification('❌ Error de conexión al eliminar la foto', 'danger');
+        button.innerHTML = originalHTML;
+        button.disabled = false;
+        button.style.pointerEvents = 'auto';
+    });
+}
+
+// ===== FUNCIONES PARA EL FLUJO DE CAPTURA =====
+
 document.getElementById('retakeBtn').addEventListener('click', function() {
+    saveEditedPhoto();
+    
     document.getElementById('photoPreview').style.display = 'none';
     document.getElementById('cameraStart').style.display = 'block';
     document.getElementById('fotoData').value = '';
+    document.getElementById('comentarioInput').value = '';
+    
+    document.getElementById('editorTools').style.display = 'none';
+    document.getElementById('toggleEditorBtn').innerHTML = '<i class="bi bi-pencil"></i> Mostrar Herramientas';
+    document.getElementById('toggleEditorBtn').classList.remove('btn-info');
+    document.getElementById('toggleEditorBtn').classList.add('btn-outline-info');
+    isEditorVisible = false;
+    
+    showNotification('Puede tomar una nueva foto', 'info');
 });
 
-// 4. ACEPTAR FOTO
 document.getElementById('acceptBtn').addEventListener('click', function() {
+    saveEditedPhoto();
+    
     document.getElementById('photoPreview').style.display = 'none';
     document.getElementById('commentForm').style.display = 'block';
+    
+    showNotification('Foto confirmada. Ahora agregue un comentario.', 'success');
 });
 
-// 5. ENVIAR FORMULARIO
 document.getElementById('submitBtn').addEventListener('click', function() {
     const fotoData = document.getElementById('fotoData').value;
-    const comentario = document.getElementById('comentarioInput').value;
+    const comentario = document.getElementById('comentarioInput').value.trim();
     
     if (!fotoData) {
-        alert('Por favor, capture una foto primero');
+        showNotification('Por favor, capture una foto primero', 'warning');
         return;
     }
     
-    if (!comentario.trim()) {
-        alert('Por favor, agregue un comentario descriptivo');
+    if (!comentario) {
+        showNotification('Por favor, agregue un comentario descriptivo', 'warning');
+        document.getElementById('comentarioInput').focus();
         return;
     }
+    
+    this.disabled = true;
+    const originalText = this.innerHTML;
+    this.innerHTML = '<i class="bi bi-hourglass-split"></i> Guardando...';
     
     const form = document.createElement('form');
-    form.method = 'post';
+    form.method = 'POST';
     form.action = '';
     
     const csrf = document.createElement('input');
@@ -368,7 +2183,8 @@ document.getElementById('submitBtn').addEventListener('click', function() {
     form.submit();
 });
 
-// FUNCIONALIDAD PARA AMPLIAR FOTOS
+// ===== FUNCIONALIDAD ADICIONAL =====
+
 function openModal(imageSrc, comment) {
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImg');
@@ -379,30 +2195,277 @@ function openModal(imageSrc, comment) {
     caption.innerHTML = comment || 'Sin comentario';
 }
 
-// Cerrar modal al hacer clic en la X
 document.querySelector('.close-modal').addEventListener('click', function() {
     document.getElementById('imageModal').style.display = 'none';
 });
 
-// Cerrar modal al hacer clic fuera de la imagen
 document.getElementById('imageModal').addEventListener('click', function(e) {
     if (e.target === this) {
         this.style.display = 'none';
     }
 });
 
-// Cerrar modal con tecla ESC
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        document.getElementById('imageModal').style.display = 'none';
+    const carouselModal = document.getElementById('carouselModal');
+    if (carouselModal.style.display === 'flex') {
+        if (e.key === 'ArrowLeft' || e.key === 'a') prevPhoto();
+        if (e.key === 'ArrowRight' || e.key === 'd') nextPhoto();
+        if (e.key === 'Escape' || e.key === ' ') closeCarousel();
+    }
+    
+    const imageModal = document.getElementById('imageModal');
+    if (imageModal.style.display === 'block' && e.key === 'Escape') {
+        imageModal.style.display = 'none';
+    }
+    
+    const editModal = document.getElementById('editModal');
+    if (editModal.style.display === 'flex' && e.key === 'Escape') {
+        closeEditModal();
     }
 });
 
-// Limpiar al salir
 window.addEventListener('beforeunload', function() {
     if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
     }
+});
+
+// ===== FUNCIONES PARA EDITAR COMENTARIO SOLAMENTE =====
+
+function editarFotoExistente(fotoId, imageUrl, comentario) {
+    console.log(`Editando comentario de foto ID: ${fotoId}`);
+    
+    showNotification('✏️ Cargando foto para editar comentario...', 'info');
+    
+    document.getElementById('editingFotoId').value = fotoId;
+    document.getElementById('editPlacaNumero').textContent = '{{ placa.numero_placa }}';
+    document.getElementById('editFotoIdBadge').textContent = `#${fotoId}`;
+    document.getElementById('editComentarioInput').value = comentario || '';
+    
+    const editPreviewImg = document.getElementById('editPreviewImg');
+    editPreviewImg.src = imageUrl;
+    
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    showNotification('✅ Foto cargada. Puede editar el comentario.', 'success');
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+    
+    showNotification('Edición cancelada', 'info');
+}
+
+function guardarEdicionComentario() {
+    const fotoId = document.getElementById('editingFotoId').value;
+    const comentario = document.getElementById('editComentarioInput').value.trim();
+    
+    console.log('=== GUARDANDO COMENTARIO ===');
+    console.log(`Foto ID: ${fotoId}`);
+    console.log(`Comentario: ${comentario}`);
+    
+    if (!fotoId) {
+        showNotification('Error: ID de foto no encontrado', 'danger');
+        return;
+    }
+    
+    if (!comentario) {
+        showNotification('Por favor, agregue un comentario descriptivo', 'warning');
+        document.getElementById('editComentarioInput').focus();
+        return;
+    }
+    
+    const saveBtn = document.querySelector('#editModal .btn-success');
+    const originalBtnText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Guardando...';
+    saveBtn.disabled = true;
+    
+    showNotification('🔄 Guardando comentario...', 'info');
+    
+    const formData = new FormData();
+    formData.append('foto_id', fotoId);
+    formData.append('comentario', comentario);
+    
+    const csrfToken = getCookie('csrftoken');
+    
+    fetch(`/cda/fotos/${fotoId}/editar/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => {
+        console.log('Respuesta recibida, status:', response.status);
+        
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`Error del servidor (${response.status})`);
+            });
+        }
+        
+        return response.json();
+    })
+    .then(data => {
+        console.log('Respuesta JSON del servidor:', data);
+        
+        if (data.success) {
+            showNotification('✅ Comentario guardado correctamente', 'success');
+            
+            saveBtn.innerHTML = originalBtnText;
+            saveBtn.disabled = false;
+            
+            setTimeout(() => {
+                closeEditModal();
+                
+                setTimeout(() => {
+                    window.location.reload();
+                }, 800);
+            }, 1500);
+            
+        } else {
+            throw new Error(data.error || 'Error desconocido del servidor');
+        }
+    })
+    .catch(error => {
+        console.error('Error en el proceso de guardado:', error);
+        
+        saveBtn.innerHTML = originalBtnText;
+        saveBtn.disabled = false;
+        
+        showNotification(`❌ Error al guardar el comentario: ${error.message}`, 'danger');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// ===== INICIALIZACIÓN AL CARGAR LA PÁGINA =====
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Página cargada - Sistema de fotos con herramientas simplificadas');
+    
+    loadCarouselPhotos();
+    setupDraggableEditor();
+    
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    const carousel = document.getElementById('carouselModal');
+    if (carousel) {
+        carousel.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        
+        carousel.addEventListener('touchend', e => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+    }
+    
+    function handleSwipe() {
+        const swipeThreshold = 50;
+        const diff = touchStartX - touchEndX;
+        
+        if (Math.abs(diff) > swipeThreshold) {
+            if (diff > 0) {
+                nextPhoto();
+            } else {
+                prevPhoto();
+            }
+        }
+    }
+    
+    if (!document.querySelector('link[href*="bootstrap-icons"]')) {
+        console.warn('Bootstrap Icons no encontrado. Los íconos no se mostrarán correctamente.');
+    }
+    
+    window.addEventListener('resize', function() {
+        const editor = document.getElementById('editorTools');
+        if (editor && editor.style.display === 'block') {
+            positionEditorToolsSafe();
+        }
+    });
+    
+    const closeBtn = document.getElementById('closeEditorBtn');
+    if (closeBtn) {
+        closeBtn.replaceWith(closeBtn.cloneNode(true));
+        
+        document.getElementById('closeEditorBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const editor = document.getElementById('editorTools');
+            const toggleBtn = document.getElementById('toggleEditorBtn');
+            
+            if (editor) editor.style.display = 'none';
+            if (toggleBtn) {
+                toggleBtn.innerHTML = '<i class="bi bi-pencil"></i> Mostrar Herramientas';
+                toggleBtn.classList.remove('btn-info');
+                toggleBtn.classList.add('btn-outline-info');
+            }
+            
+            isEditorVisible = false;
+            console.log('Panel cerrado correctamente');
+        });
+    }
+    
+    // Configurar eventos para botones eliminar
+    document.querySelectorAll('.delete-photo-btn').forEach(btn => {
+        const fotoId = btn.getAttribute('data-foto-id') || 
+                      btn.closest('.photo-card-container').getAttribute('data-foto-id');
+        
+        if (fotoId) {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                eliminarFoto(fotoId, this);
+            };
+        }
+    });
+    
+    // Configurar eventos para botones editar
+    document.querySelectorAll('.edit-photo-btn').forEach(btn => {
+        const fotoId = btn.getAttribute('data-foto-id') || 
+                      btn.closest('.photo-card-container').getAttribute('data-foto-id');
+        
+        if (fotoId) {
+            const img = btn.closest('.photo-card').querySelector('.card-img-top');
+            const imageUrl = img.getAttribute('data-imagen-url') || img.src;
+            const comment = img.getAttribute('data-comment') || '';
+            
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                editarFotoExistente(fotoId, imageUrl, comment);
+            };
+        }
+    });
+    
+    console.log('Todas las funcionalidades cargadas correctamente:');
+    console.log('1. ✅ Captura de fotos con cámara');
+    console.log('2. ✅ Edición de fotos nuevas (herramientas simplificadas)');
+    console.log('3. ✅ HERRAMIENTAS: Pincel, Flecha, Texto y Borrador');
+    console.log('4. ✅ Paleta de colores para dibujar líneas');
+    console.log('5. ✅ Carrusel de fotos');
+    console.log('6. ✅ Eliminación de fotos');
+    console.log('7. ✅ EDICIÓN SIMPLIFICADA: Solo comentario para fotos existentes');
+    console.log(`8. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
 });
 </script>
 {% endblock %}

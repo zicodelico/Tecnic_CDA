@@ -19,6 +19,13 @@ urlpatterns = [
     path('placas/<int:placa_id>/pdf/', views.generar_pdf, name='generar_pdf'),
     path('placas/<int:placa_id>/eliminar/', views.eliminar_placa, name='eliminar_placa'),
 
+    # 🖼️ Nuevas rutas para gestión de fotos
+    path('fotos/<int:foto_id>/eliminar/', views.eliminar_foto, name='eliminar_foto'),
+    path('fotos/<int:foto_id>/detalles/', views.obtener_detalles_foto, name='detalles_foto'),
+    path('placas/<int:placa_id>/fotos-lista/', views.obtener_fotos_placa, name='fotos_placa'),
+
+    path('fotos/<int:foto_id>/editar/', views.editar_foto, name='editar_foto'),
+
     # 👤 Administración de usuarios (COMPLETO)
     path('admin/usuarios/', views.lista_usuarios_admin, name='lista_usuarios_admin'),
     path('admin/usuarios/crear/', views.crear_usuario, name='crear_usuario'),
@@ -37,5 +44,8 @@ urlpatterns = [
 
     # 📋 Compatibilidad con URLs antiguas
     path('usuarios/', views.lista_usuarios, name='lista_usuarios'),
+    
+    #cerrar todas las secciones 
+    path('cerrar-todas-sesiones/', views.cerrar_todas_las_sesiones, name='cerrar_todas_sesiones'),
 ]
 

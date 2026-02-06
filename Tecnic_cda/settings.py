@@ -14,11 +14,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-xu+m0m64uqjq_qqufsxp-q_ti8vw+@==$)@h4#lhx$)&)v)p^5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-#DEBUG = True
-DEBUG = False
+DEBUG = True
+#DEBUG = False
 
-#ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['tecni.pythonanywhere.com']
+ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = ['tecni.pythonanywhere.com']
 
 
 # Application definition
@@ -41,6 +41,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'cda.middleware.OneSessionPerUserMiddleware',  # <--  ESTA LÍNEA MAEJA LAS SECCIONES EN 1 SOLO DISPOSITIVO 
 ]
 
 ROOT_URLCONF = 'Tecnic_cda.urls'
@@ -152,6 +153,22 @@ os.environ['PATH'] = '/usr/bin:' + os.environ['PATH']
 
 
 # Forzar zona horaria de Colombia
-os.environ['TZ'] = 'America/Bogota'
-time.tzset()
+#os.environ['TZ'] = 'America/Bogota'
+#time.tzset()
+
+
+# PARA LE MANEJO DE SECCIONES ESTE SOLO EN 1 DISPOSITIVO A LA VES 
+SESSION_COOKIE_AGE = 28800  # 8 horas en segundos
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Cerrar sesión al cerrar el navegador
+SESSION_SAVE_EVERY_REQUEST = True  # Renovar sesión en cada request
+SESSION_COOKIE_SECURE = True if not DEBUG else False # True en producción con HTTPS si da errores borrar des de if not y dejar en True
+SESSION_COOKIE_HTTPONLY = True  # Prevenir acceso a cookies via JavaScript
+
+# Para desarrollo, puedes reducir el tiempo de sesión
+if DEBUG:
+    SESSION_COOKIE_AGE = 7200  # 2 horas en desarrollo
+
+# ESTA ES LA CLAVE - Evita múltiples sesiones
+# Cada nueva sesión invalida la anterior
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
