@@ -652,31 +652,32 @@
     /* TABLETS (768px o menos) */
     @media (max-width: 768px) {
     .editor-tools {
-        position: fixed;
-        top: 10px !important; /* Más cerca del borde superior */
+        position: fixed !important;
+        top: 10px !important;
         left: 10px !important;
         right: 10px !important;
         width: auto !important;
         max-width: calc(100% - 20px) !important;
         margin: 0 !important;
-        padding: 8px !important; /* Menos padding */
-        max-height: 50vh !important; /* Más bajo */
+        padding: 8px !important;
+        max-height: 50vh !important;
         overflow-y: auto !important;
-        transform: none !important; /* Sin transform que cause problemas */
+        transform: none !important;
     }
     
     /* Ajustar el contenido interno para móviles */
     .editor-header {
         padding-bottom: 6px !important;
         margin-bottom: 8px !important;
+        cursor: default !important;
     }
     
     .editor-title {
-        font-size: 0.9rem !important; /* Texto más pequeño */
+        font-size: 0.9rem !important;
     }
     
     .tool-btn {
-        width: 36px !important; /* Botones más pequeños */
+        width: 36px !important;
         height: 36px !important;
         font-size: 0.85rem !important;
         margin: 2px !important;
@@ -688,7 +689,7 @@
     }
     
     .color-item {
-        width: 26px !important; /* Colores más pequeños */
+        width: 26px !important;
         height: 26px !important;
     }
     
@@ -696,28 +697,17 @@
         font-size: 0.8rem !important;
         margin-bottom: 4px !important;
     }
-    
-    /* Asegurar que el contenedor de la imagen sea visible */
-    .editor-container {
-        margin-top: 10px !important;
-        height: 250px !important; /* Altura fija para móviles */
-    }
 }
 
-/* MÓVILES PEQUEÑOS (576px o menos) - CORREGIDO */
+/* MÓVILES PEQUEÑOS (576px o menos) */
 @media (max-width: 576px) {
     .editor-tools {
-        top: 5px !important; /* Aún más cerca del borde */
+        top: 5px !important;
         left: 5px !important;
         right: 5px !important;
         max-width: calc(100% - 10px) !important;
-        padding: 6px !important; /* Mínimo padding */
-        max-height: 45vh !important; /* Aún más compacto */
-    }
-    
-    .editor-header {
-        padding-bottom: 4px !important;
-        margin-bottom: 6px !important;
+        padding: 6px !important;
+        max-height: 45vh !important;
     }
     
     .tool-btn {
@@ -727,63 +717,9 @@
         margin: 1px !important;
     }
     
-    .color-palette {
-        gap: 4px !important;
-    }
-    
     .color-item {
         width: 24px !important;
         height: 24px !important;
-    }
-    
-    .editor-title {
-        font-size: 0.85rem !important;
-    }
-    
-    .slider-container {
-        padding: 6px 8px !important;
-        margin: 6px 0 !important;
-    }
-    
-    /* Ajustar el canvas para dibujar */
-    .editor-container {
-        height: 220px !important;
-        margin-top: 15px !important;
-    }
-    
-    .drawing-canvas {
-        cursor: pointer !important; /* Mejor cursor para móviles */
-    }
-}
-
-/* DISPOSITIVOS MUY PEQUEÑOS (menos de 400px) - CORREGIDO */
-@media (max-width: 400px) {
-    .editor-tools {
-        top: 2px !important;
-        left: 2px !important;
-        right: 2px !important;
-        max-width: calc(100% - 4px) !important;
-        padding: 4px !important;
-        max-height: 40vh !important;
-    }
-    
-    .tool-btn {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 0.75rem !important;
-    }
-    
-    .color-item {
-        width: 22px !important;
-        height: 22px !important;
-    }
-    
-    .editor-container {
-        height: 200px !important;
-    }
-    
-    #brushSizeValue {
-        font-size: 0.8rem !important;
     }
 }
     
@@ -2440,7 +2376,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 editarFotoExistente(fotoId, imageUrl, comment);
             };
         }
-    
     });
     
     console.log('Todas las funcionalidades cargadas correctamente:');
@@ -2453,74 +2388,36 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('7. ✅ EDICIÓN SIMPLIFICADA: Solo comentario para fotos existentes');
     console.log(`8. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
 
-    / ===== AJUSTE AUTOMÁTICO PARA MÓVILES =====
+    // ===== AJUSTE AUTOMÁTICO PARA MÓVILES =====
 function adjustEditorForMobile() {
     const editor = document.getElementById('editorTools');
     const toggleBtn = document.getElementById('toggleEditorBtn');
     
     if (!editor || !toggleBtn) return;
     
-    // Solo aplicar en móviles
+    // Solo aplicar en móviles (≤768px)
     if (window.innerWidth <= 768) {
-        // Forzar posición y tamaño en móviles
-        editor.style.position = 'fixed';
-        editor.style.top = '10px';
-        editor.style.left = '10px';
-        editor.style.right = '10px';
-        editor.style.width = 'auto';
-        editor.style.maxWidth = 'calc(100% - 20px)';
-        editor.style.maxHeight = '50vh';
-        editor.style.zIndex = '1050';
-        editor.style.overflowY = 'auto';
-        
         // Desactivar arrastre en móviles
         const header = document.getElementById('editorHeader');
         if (header) {
             header.style.cursor = 'default';
+            // Remover eventos de arrastre si existen
             header.removeEventListener('mousedown', startDrag);
             header.removeEventListener('touchstart', startDragTouch);
         }
-        
-        // Asegurar que el botón de mostrar/ocultar funcione
-        toggleBtn.onclick = function() {
-            isEditorVisible = !isEditorVisible;
-            
-            if (isEditorVisible) {
-                editor.style.display = 'block';
-                this.innerHTML = '<i class="bi bi-pencil"></i> Ocultar Herramientas';
-                this.classList.add('btn-info');
-                this.classList.remove('btn-outline-info');
-                
-                // Posicionar correctamente
-                adjustEditorForMobile();
-            } else {
-                editor.style.display = 'none';
-                this.innerHTML = '<i class="bi bi-pencil"></i> Mostrar Herramientas';
-                this.classList.remove('btn-info');
-                this.classList.add('btn-outline-info');
-            }
-        };
     } else {
-        // En desktop, restaurar comportamiento normal
-        editor.style.position = 'fixed';
-        editor.style.top = '80px';
-        editor.style.left = '20px';
-        editor.style.right = 'auto';
-        editor.style.width = '320px';
-        editor.style.maxHeight = '75vh';
-        
-        // Reactivar arrastre en desktop
-        setupDraggableEditor();
+        // En desktop, mantener comportamiento normal
+        // El arrastre ya está configurado en setupDraggableEditor()
     }
 }
 
 // Llamar la función al cargar y al redimensionar
-window.addEventListener('load', adjustEditorForMobile);
-window.addEventListener('resize', adjustEditorForMobile);
-
-// También llamar cuando se muestra el editor
-document.getElementById('toggleEditorBtn').addEventListener('click', function() {
-    setTimeout(adjustEditorForMobile, 10);
+document.addEventListener('DOMContentLoaded', function() {
+    // ... todo el código existente SIN cambios ...
+    
+    // Solo añadir esto al final:
+    adjustEditorForMobile();
+    window.addEventListener('resize', adjustEditorForMobile);
 });
 });
 </script>
