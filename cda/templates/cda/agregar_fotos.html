@@ -166,171 +166,171 @@
     /* ===== PANEL DE HERRAMIENTAS MEJORADO ===== */
     /* Panel completamente responsivo y limitado al lado izquierdo */
     .editor-tools {
-    position: fixed;
-    top: 80px;
-    left: 20px;
-    z-index: 1050;
-    background: rgba(0, 0, 0, 0.95);
-    border-radius: 12px;
-    padding: 15px;
-    display: none;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    user-select: none;
-    
-    width: 320px;
-    max-height: 75vh;
-    overflow-y: auto;
-}
-
-/* RESPONSIVE DESIGN PARA MÓVILES */
-@media (max-width: 768px) {
-    .editor-tools {
         position: fixed;
-        top: 70px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 95%;
-        max-width: 400px;
-        max-height: auto;
-        height: auto;
-        padding: 12px;
-        margin: 0;
-        bottom: auto;
-        right: auto;
-    }
-    
-    .editor-tools.dragging {
-        transform: translate(-50%, -50%);
-        width: 90%;
-    }
-    
-    .editor-header {
-        padding: 8px 0;
-        margin-bottom: 8px;
-        cursor: default !important;
-    }
-    
-    .editor-title {
-        font-size: 1rem;
-    }
-    
-    .tool-btn {
-        width: 40px;
-        height: 40px;
-        margin: 3px;
-        font-size: 0.9rem;
-    }
-    
-    .color-palette {
-        gap: 6px;
-        margin: 8px 0;
-    }
-    
-    .color-item {
-        width: 30px;
-        height: 30px;
-    }
-    
-    .section-title {
-        font-size: 0.85rem;
-        margin-bottom: 6px;
-    }
-    
-    /* Asegurar que el canvas sea más grande en móviles */
-    .editor-container {
-        margin-bottom: 10px;
-        height: 300px;
-    }
-    
-    .drawing-canvas {
-        height: 100% !important;
-    }
-}
-
-/* MÓVILES PEQUEÑOS (576px o menos) */
-@media (max-width: 576px) {
-    .editor-tools {
-        position: fixed;
-        top: 60px;
-        left: 10px;
-        right: 10px;
-        width: calc(100% - 20px);
-        max-width: none;
-        transform: none;
-        padding: 10px;
-        max-height: 60vh;
+        top: 80px;
+        left: 20px;
+        z-index: 1050;
+        background: rgba(0, 0, 0, 0.95);
+        border-radius: 12px;
+        padding: 15px;
+        display: none;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        user-select: none;
+        
+        width: 320px;
+        max-height: 75vh;
         overflow-y: auto;
     }
     
     .editor-tools.dragging {
-        transform: none;
-        left: 5px;
-        right: 5px;
-        width: calc(100% - 10px);
+        opacity: 0.95;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8) !important;
+        z-index: 1060 !important;
+        transition: none !important;
+    }
+    
+    .editor-tools.dragging * {
+        pointer-events: none !important;
+    }
+    
+    .editor-tools.dragging .editor-header {
+        pointer-events: auto !important;
+        cursor: grabbing !important;
     }
     
     .editor-header {
-        padding: 6px 0;
-        margin-bottom: 6px;
+        padding-bottom: 12px;
+        margin-bottom: 15px;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: grab !important;
+        user-select: none !important;
+    }
+    
+    .editor-header:active {
+        cursor: grabbing !important;
+    }
+    
+    .editor-title {
+        color: white;
+        font-weight: 600;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .editor-close-btn {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 1.2rem;
+        padding: 0;
+    }
+    
+    .editor-close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.5);
     }
     
     .tool-btn {
-        width: 36px;
-        height: 36px;
-        font-size: 0.85rem;
-        margin: 2px;
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 4px;
+        cursor: pointer;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 2px solid transparent;
+        transition: all 0.2s;
+        font-size: 1.1rem;
     }
     
+    .tool-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+    
+    .tool-btn.active {
+        background: #007bff;
+        border-color: #00aaff;
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(0, 123, 255, 0.5);
+    }
+    
+    /* Paleta de colores */
     .color-palette {
-        gap: 5px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+        justify-content: center;
     }
     
     .color-item {
-        width: 28px;
-        height: 28px;
-    }
-    
-    /* Asegurar que el contenedor de la imagen sea más grande */
-    .editor-container {
-        height: 250px;
-        margin-bottom: 8px;
-    }
-    
-    #previewImg {
-        max-height: 250px;
-        object-fit: contain;
-    }
-}
-
-/* DISPOSITIVOS MUY PEQUEÑOS (menos de 400px) */
-@media (max-width: 400px) {
-    .editor-tools {
-        top: 50px;
-        left: 5px;
-        right: 5px;
-        width: calc(100% - 10px);
-        padding: 8px;
-        max-height: 50vh;
-    }
-    
-    .tool-btn {
         width: 32px;
         height: 32px;
-        font-size: 0.8rem;
-        margin: 1px;
+        border-radius: 50%;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.2s;
     }
     
-    .color-item {
-        width: 25px;
-        height: 25px;
+    .color-item:hover {
+        transform: scale(1.2);
+        border-color: white;
     }
     
-    .editor-container {
-        height: 200px;
+    .color-item.active {
+        border-color: white;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        transform: scale(1.1);
     }
-}
+    
+    .editor-section {
+        margin-bottom: 15px;
+    }
+    
+    .section-title {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .col-md-6:last-child {
+        position: relative;
+        z-index: 5;
+    }
+    
+    .photo-card-container,
+    .photo-card,
+    .card-img-top {
+        position: relative;
+        z-index: 10 !important;
+        pointer-events: auto !important;
+    }
+    
+    .editor-tools {
+        z-index: 20;
+    }
     
     /* ===== CARRUSEL DE IMÁGENES ===== */
     .carousel-modal {
@@ -1701,50 +1701,38 @@ document.getElementById('toggleEditorBtn').addEventListener('click', function() 
 
 function positionEditorToolsSafe() {
     const editor = document.getElementById('editorTools');
+    
     if (!editor) return;
     
-    const isMobile = window.innerWidth <= 768;
+    const editorWidth = editor.offsetWidth;
+    const editorHeight = editor.offsetHeight;
     
-    if (isMobile) {
-        // Para móviles: centrar y posicionar en la parte superior
-        editor.style.left = '50%';
-        editor.style.transform = 'translateX(-50%)';
-        editor.style.top = '70px';
-        editor.style.width = '95%';
-        editor.style.maxWidth = '400px';
-    } else {
-        // Para desktop: posición normal
-        const editorWidth = editor.offsetWidth;
-        const editorHeight = editor.offsetHeight;
-        
-        let left = 20;
-        let top = 80;
-        
-        const windowWidth = window.innerWidth;
-        const windowHeight = window.innerHeight;
-        
-        const maxLeft = (windowWidth * 0.45) - editorWidth;
-        if (left > maxLeft) {
-            left = maxLeft;
-        }
-        
-        const maxTop = windowHeight - editorHeight - 20;
-        if (top > maxTop) {
-            top = maxTop;
-        }
-        
-        if (left < 5) left = 5;
-        if (top < 60) top = 60;
-        
-        editor.style.left = left + 'px';
-        editor.style.top = top + 'px';
-        editor.style.transform = '';
-        editor.style.width = '';
-        
-        originalLeft = left;
-        originalTop = top;
+    let left = 20;
+    let top = 80;
+    
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    
+    const maxLeft = (windowWidth * 0.45) - editorWidth;
+    if (left > maxLeft) {
+        left = maxLeft;
     }
+    
+    const maxTop = windowHeight - editorHeight - 20;
+    if (top > maxTop) {
+        top = maxTop;
+    }
+    
+    if (left < 5) left = 5;
+    if (top < 60) top = 60;
+    
+    editor.style.left = left + 'px';
+    editor.style.top = top + 'px';
+    
+    originalLeft = left;
+    originalTop = top;
 }
+
 function startDrawing(e) {
     if (!drawingCtx) return;
     
@@ -2478,52 +2466,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('6. ✅ Eliminación de fotos');
     console.log('7. ✅ EDICIÓN SIMPLIFICADA: Solo comentario para fotos existentes');
     console.log(`8. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
-
- // Ajustar posición del panel en móviles
-    function positionEditorToolsForMobile() {
-    const editor = document.getElementById('editorTools');
-    const toggleBtn = document.getElementById('toggleEditorBtn');
-    
-    if (!editor || !toggleBtn) return;
-    
-    const isMobile = window.innerWidth <= 768;
-    
-    if (isMobile) {
-        // En móviles, centrar horizontalmente y posicionar en la parte superior
-        editor.style.left = '50%';
-        editor.style.transform = 'translateX(-50%)';
-        editor.style.right = 'auto';
-        editor.style.width = '95%';
-        editor.style.maxWidth = '400px';
-        editor.style.top = '70px';
-        
-        // Desactivar arrastre en móviles si es necesario
-        const header = document.getElementById('editorHeader');
-        if (header) {
-            header.style.cursor = 'default';
-            header.removeEventListener('mousedown', startDrag);
-            header.removeEventListener('touchstart', startDragTouch);
-        }
-    } else {
-        // En desktop, restaurar comportamiento normal
-        editor.style.left = '';
-        editor.style.transform = '';
-        editor.style.right = '';
-        editor.style.width = '320px';
-        editor.style.top = '80px';
-        editor.style.left = '20px';
-        
-        // Reactivar arrastre en desktop
-        setupDraggableEditor();
-    }
-}
-
-// Llamar al cargar y al redimensionar
-window.addEventListener('load', positionEditorToolsForMobile);
-window.addEventListener('resize', positionEditorToolsForMobile);
-
-// En el DOMContentLoaded, después de setupDraggableEditor():
-setTimeout(positionEditorToolsForMobile, 100);   
 });
 </script>
 {% endblock %}
