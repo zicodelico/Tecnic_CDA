@@ -653,73 +653,174 @@
     @media (max-width: 768px) {
     .editor-tools {
         position: fixed !important;
-        top: 10px !important;
-        left: 10px !important;
-        right: 10px !important;
+        top: 8px !important; /* Reducido de 10px */
+        left: 8px !important; /* Reducido de 10px */
+        right: 8px !important; /* Reducido de 10px */
         width: auto !important;
-        max-width: calc(100% - 20px) !important;
+        max-width: calc(100% - 16px) !important; /* Reducido de 20px */
         margin: 0 !important;
-        padding: 8px !important;
-        max-height: 50vh !important;
+        padding: 6px !important; /* Reducido de 8px */
+        max-height: 45vh !important; /* Reducido de 50vh */
         overflow-y: auto !important;
         transform: none !important;
+        border-radius: 8px !important; /* Reducido de 12px */
     }
     
     /* Ajustar el contenido interno para móviles */
     .editor-header {
-        padding-bottom: 6px !important;
-        margin-bottom: 8px !important;
+        padding-bottom: 4px !important; /* Reducido de 6px */
+        margin-bottom: 6px !important; /* Reducido de 8px */
         cursor: default !important;
     }
     
     .editor-title {
-        font-size: 0.9rem !important;
+        font-size: 0.85rem !important; /* Reducido de 0.9rem */
+    }
+    
+    .editor-close-btn {
+        width: 26px !important; /* Reducido de 30px */
+        height: 26px !important; /* Reducido de 30px */
+        font-size: 1rem !important; /* Reducido de 1.2rem */
     }
     
     .tool-btn {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 0.85rem !important;
-        margin: 2px !important;
+        width: 34px !important; /* Reducido de 36px */
+        height: 34px !important; /* Reducido de 36px */
+        font-size: 0.8rem !important; /* Reducido de 0.85rem */
+        margin: 1px !important; /* Reducido de 2px */
+        border-radius: 6px !important; /* Reducido de 8px */
     }
     
     .color-palette {
-        gap: 6px !important;
-        margin: 8px 0 !important;
+        gap: 4px !important; /* Reducido de 6px */
+        margin: 6px 0 !important; /* Reducido de 8px */
     }
     
     .color-item {
-        width: 26px !important;
-        height: 26px !important;
+        width: 24px !important; /* Reducido de 26px */
+        height: 24px !important; /* Reducido de 26px */
     }
     
     .section-title {
-        font-size: 0.8rem !important;
-        margin-bottom: 4px !important;
+        font-size: 0.75rem !important; /* Reducido de 0.8rem */
+        margin-bottom: 3px !important; /* Reducido de 4px */
+    }
+    
+    .slider-container {
+        padding: 6px 8px !important; /* Reducido de 10px 15px */
+        margin: 6px 0 !important; /* Reducido de 10px 0 */
     }
 }
 
-/* MÓVILES PEQUEÑOS (576px o menos) */
+/* MÓVILES PEQUEÑOS (576px o menos) - MÁS COMPACTO */
 @media (max-width: 576px) {
     .editor-tools {
-        top: 5px !important;
-        left: 5px !important;
-        right: 5px !important;
-        max-width: calc(100% - 10px) !important;
-        padding: 6px !important;
-        max-height: 45vh !important;
+        top: 4px !important; /* Reducido de 5px */
+        left: 4px !important; /* Reducido de 5px */
+        right: 4px !important; /* Reducido de 5px */
+        max-width: calc(100% - 8px) !important; /* Reducido de 10px */
+        padding: 4px !important; /* Reducido de 6px */
+        max-height: 40vh !important; /* Reducido de 45vh */
+        border-radius: 6px !important; /* Reducido de 8px */
+    }
+    
+    .editor-header {
+        padding-bottom: 3px !important; /* Reducido de 4px */
+        margin-bottom: 4px !important; /* Reducido de 6px */
+    }
+    
+    .editor-title {
+        font-size: 0.8rem !important; /* Reducido de 0.85rem */
+    }
+    
+    .editor-close-btn {
+        width: 24px !important; /* Reducido de 26px */
+        height: 24px !important; /* Reducido de 26px */
+        font-size: 0.9rem !important; /* Reducido de 1rem */
     }
     
     .tool-btn {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 0.8rem !important;
-        margin: 1px !important;
+        width: 30px !important; /* Reducido de 32px */
+        height: 30px !important; /* Reducido de 32px */
+        font-size: 0.75rem !important; /* Reducido de 0.8rem */
+        margin: 0.5px !important; /* Reducido de 1px */
+        border-radius: 5px !important; /* Reducido de 6px */
+    }
+    
+    .color-palette {
+        gap: 3px !important; /* Reducido de 4px */
+        margin: 4px 0 !important; /* Reducido de 6px */
     }
     
     .color-item {
-        width: 24px !important;
-        height: 24px !important;
+        width: 22px !important; /* Reducido de 24px */
+        height: 22px !important; /* Reducido de 24px */
+    }
+    
+    .section-title {
+        font-size: 0.7rem !important; /* Reducido de 0.75rem */
+        margin-bottom: 2px !important; /* Reducido de 3px */
+    }
+    
+    .slider-container {
+        padding: 4px 6px !important; /* Reducido de 6px 8px */
+        margin: 4px 0 !important; /* Reducido de 6px 0 */
+    }
+}
+
+/* DISPOSITIVOS MUY PEQUEÑOS (menos de 400px) - MÍNIMO */
+@media (max-width: 400px) {
+    .editor-tools {
+        top: 2px !important; /* Reducido de 4px */
+        left: 2px !important; /* Reducido de 4px */
+        right: 2px !important; /* Reducido de 4px */
+        max-width: calc(100% - 4px) !important; /* Reducido de 8px */
+        padding: 3px !important; /* Reducido de 4px */
+        max-height: 35vh !important; /* Reducido de 40vh */
+        border-radius: 5px !important; /* Reducido de 6px */
+    }
+    
+    .editor-header {
+        padding-bottom: 2px !important; /* Reducido de 3px */
+        margin-bottom: 3px !important; /* Reducido de 4px */
+    }
+    
+    .editor-title {
+        font-size: 0.75rem !important; /* Reducido de 0.8rem */
+    }
+    
+    .editor-close-btn {
+        width: 22px !important; /* Reducido de 24px */
+        height: 22px !important; /* Reducido de 24px */
+        font-size: 0.85rem !important; /* Reducido de 0.9rem */
+    }
+    
+    .tool-btn {
+        width: 28px !important; /* Reducido de 30px */
+        height: 28px !important; /* Reducido de 30px */
+        font-size: 0.7rem !important; /* Reducido de 0.75rem */
+        margin: 0.25px !important; /* Reducido de 0.5px */
+        border-radius: 4px !important; /* Reducido de 5px */
+    }
+    
+    .color-palette {
+        gap: 2px !important; /* Reducido de 3px */
+        margin: 3px 0 !important; /* Reducido de 4px */
+    }
+    
+    .color-item {
+        width: 20px !important; /* Reducido de 22px */
+        height: 20px !important; /* Reducido de 22px */
+    }
+    
+    .section-title {
+        font-size: 0.65rem !important; /* Reducido de 0.7rem */
+        margin-bottom: 1px !important; /* Reducido de 2px */
+    }
+    
+    .slider-container {
+        padding: 3px 4px !important; /* Reducido de 4px 6px */
+        margin: 3px 0 !important; /* Reducido de 4px 0 */
     }
 }
     
