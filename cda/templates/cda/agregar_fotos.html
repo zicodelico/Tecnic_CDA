@@ -474,6 +474,8 @@
     pointer-events: none;
     opacity: 1; /* Siempre visible */
     visibility: visible; /* Siempre visible */
+    pointer-events: auto; /* Línea nueva */
+    z-index: 30; /* Línea nueva - aumentar */
 }
 
 /* Botón eliminar foto */
@@ -1956,6 +1958,7 @@ function loadCarouselPhotos() {
             src: img.src,
             comment: img.dataset.comment || 'Sin comentario',
             id: img.dataset.fotoId
+            pointer-events: none; /* Línea nueva - evitar interferencia */
         });
     });
 }
