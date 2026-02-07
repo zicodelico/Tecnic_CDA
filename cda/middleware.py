@@ -18,32 +18,49 @@ class OneSessionPerUserMiddleware:
     def __call__(self, request):
         # Código que se ejecuta ANTES de cada vista
         
-        if request.user.is_authenticated:
+        if request.user.is_authenticated and request.session.session_key:
+            current_user_id = str(request.user.id)
             current_session_key = request.session.session_key
             
-            # Obtener TODAS las sesiones activas de este usuario
-            user_sessions = Session.objects.filter(
+            print(f"🔍 [MIDDLEWARE] Usuario: {request.user.username} (ID: {current_user_id})")
+            print(f"   Sesión actual: {current_session_key}")
+            
+            # Obtener TODAS las sesiones activas
+            all_active_sessions = Session.objects.filter(
                 expire_date__gte=timezone.now()
-            ).filter(
-                session_data__contains=str(request.user.id)
             )
             
-            # Si hay más de una sesión activa
-            if user_sessions.count() > 1:
-                print(f"⚠️ Usuario {request.user.username} tiene {user_sessions.count()} sesiones activas")
-                
-                # Mantener solo la sesión ACTUAL, eliminar las demás
-                for session in user_sessions:
-                    if session.session_key != current_session_key:
-                        try:
-                            print(f"🗑️ Eliminando sesión antigua: {session.session_key}")
-                            session.delete()
-                        except Exception as e:
-                            logger.error(f"Error eliminando sesión {session.session_key}: {e}")
+            # Lista para almacenar sesiones del usuario actual
+            user_sessions_ids = []
             
-            # Si el usuario está autenticado pero la sesión actual NO está en las activas
-            # (puede pasar si otra sesión la eliminó)
-            elif current_session_key and not user_sessions.filter(session_key=current_session_key).exists():
+            # Recorrer todas las sesiones activas para encontrar las del usuario actual
+            for session in all_active_sessions:
+                try:
+                    session_data = session.get_decoded()
+                    
+                    if '_auth_user_id' in session_data:
+                        session_user_id = session_data['_auth_user_id']
+                        
+                        # Si esta sesión pertenece al usuario actual
+                        if session_user_id == current_user_id:
+                            user_sessions_ids.append(session.session_key)
+                            
+                            # Si no es la sesión actual, ELIMINARLA
+                            if session.session_key != current_session_key:
+                                print(f"🗑️ Eliminando sesión anterior: {session.session_key}")
+                                session.delete()
+                                
+                except Exception as e:
+                    logger.error(f"Error decodificando sesión {session.session_key}: {e}")
+                    continue
+            
+            print(f"   Sesiones del usuario {request.user.username}: {len(user_sessions_ids)}")
+            
+            # Verificar si la sesión actual fue eliminada por otro dispositivo
+            if (current_session_key and 
+                current_session_key not in user_sessions_ids and
+                not Session.objects.filter(session_key=current_session_key).exists()):
+                
                 print(f"🚨 Sesión actual {current_session_key} fue invalidada por otra sesión")
                 
                 # Forzar logout
@@ -53,6 +70,8 @@ class OneSessionPerUserMiddleware:
                 from django.contrib import messages
                 messages.warning(request, 'Tu sesión fue cerrada porque iniciaste sesión en otro dispositivo.')
                 return redirect('cda:login')
+            
+            print(f"✅ [MIDDLEWARE] Procesamiento completado para {request.user.username}")
         
         response = self.get_response(request)
         
