@@ -2485,26 +2485,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('7. ✅ EDICIÓN SIMPLIFICADA: Solo comentario para fotos existentes');
     console.log(`8. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
 
-    // SOLUCIÓN SIMPLE - PERMITE ZOOM NATIVO DEL NAVEGADOR
-const carouselImage = document.getElementById('carouselImage');
-if (carouselImage) {
-    // Permitir zoom táctil pero bloquear swipe para navegación
-    carouselImage.addEventListener('touchstart', function(e) {
-        if (e.touches.length === 1) {
-            // Solo prevenir si es un dedo (swipe)
-            e.stopPropagation();
-        }
-        // Si son 2 o más dedos, permitir zoom natural
-    });
     
-    carouselImage.addEventListener('touchmove', function(e) {
-        if (e.touches.length === 1) {
-            // Solo bloquear si es un dedo (swipe)
-            e.stopPropagation();
-        }
-        // Si son 2 o más dedos, permitir movimiento para zoom
-    });
-}
 
     // Bloquear swipe en la imagen del carrusel
 const carouselImage = document.getElementById('carouselImage');
