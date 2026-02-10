@@ -475,7 +475,7 @@
     opacity: 1; /* Siempre visible */
     visibility: visible; /* Siempre visible */
     pointer-events: auto; /* Permitir clics en los botones */
-    z-index: 30; /* Línea nueva - aumentar */
+    z-index: 30; /* Asegurar que estén por encima */
 }
 
 /* Botón eliminar foto */
@@ -2380,7 +2380,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     loadCarouselPhotos();
     setupDraggableEditor();
-    
+    /*
     let touchStartX = 0;
     let touchEndX = 0;
     
@@ -2408,7 +2408,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+    */
     if (!document.querySelector('link[href*="bootstrap-icons"]')) {
         console.warn('Bootstrap Icons no encontrado. Los íconos no se mostrarán correctamente.');
     }
@@ -2484,6 +2484,20 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('6. ✅ Eliminación de fotos');
     console.log('7. ✅ EDICIÓN SIMPLIFICADA: Solo comentario para fotos existentes');
     console.log(`8. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
+
+    // Bloquear swipe en la imagen del carrusel
+const carouselImage = document.getElementById('carouselImage');
+if (carouselImage) {
+    carouselImage.addEventListener('touchstart', function(e) {
+        // Solo prevenimos que el evento se propague
+        e.stopPropagation();
+    });
+    
+    carouselImage.addEventListener('touchmove', function(e) {
+        // Prevenimos el desplazamiento en la imagen
+        e.preventDefault();
+    });
+}
 
     // ===== AJUSTE AUTOMÁTICO PARA MÓVILES =====
 function adjustEditorForMobile() {
