@@ -353,7 +353,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        overflow: auto;
+        
     }
     
     .carousel-img {
@@ -365,7 +365,7 @@
         object-fit: contain;
         transition: opacity 0.3s ease, transform 0.3s ease; /* ← AGREGAR transform */
         cursor: zoom-in; /* ← AGREGAR cursor */
-        transform-origin: center center; /* ← AGREGAR transform-origin */
+        transform-origin: 0 0; /* ← AGREGAR transform-origin */
     
     /* Transiciones */
         transition: opacity 0.3s ease, transform 0.3s ease;
@@ -2523,38 +2523,130 @@ if (carouselImage) {
     // Para móviles
     carouselImage.style.touchAction = 'pan-y pinch-zoom';
     
-    // Para PC
+    // Variables para zoom
     let scale = 1;
+    let posX = 0;
+    let posY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
     
+    // Aplicar transformación
+    function applyTransform() {
+        carouselImage.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+        carouselImage.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
+        if (isDragging) carouselImage.style.cursor = 'grabbing';
+    }
+    
+    // Resetear
+    function resetZoom() {
+        scale = 1;
+        posX = 0;
+        posY = 0;
+        applyTransform();
+    }
+    
+    // ZOOM CON RUEDA
     carouselImage.addEventListener('wheel', function(e) {
         e.preventDefault();
         
-        // Zoom in/out con Ctrl + rueda
-        const delta = e.deltaY < 0 ? 0.25 : -0.25;
-        scale = Math.max(0.5, Math.min(5, scale + delta)); // Máximo 5x
+        const rect = carouselImage.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
         
-        // Aplicar zoom solo a la imagen
-        carouselImage.style.transform = `scale(${scale})`;
-        carouselImage.style.transformOrigin = 'center center';
-        carouselImage.style.transition = 'transform 0.1s';
-        carouselImage.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
+        // Guardar escala anterior
+        const oldScale = scale;
+        
+        // Calcular nueva escala (Ctrl + rueda)
+        if (e.ctrlKey) {
+            const delta = e.deltaY < 0 ? 0.25 : -0.25;
+            scale = Math.max(0.5, Math.min(5, scale + delta));
+            
+            // Ajustar posición para mantener el punto bajo el mouse
+            const scaleChange = scale / oldScale;
+            posX = mouseX - (mouseX - posX) * scaleChange;
+            posY = mouseY - (mouseY - posY) * scaleChange;
+            
+            applyTransform();
+        }
     });
     
-    // Doble clic para reset
-    carouselImage.addEventListener('dblclick', function() {
-        scale = 1;
-        carouselImage.style.transform = 'scale(1)';
-        carouselImage.style.transition = 'transform 0.3s';
-        carouselImage.style.cursor = 'zoom-in';
+    // ARRASTRE CUANDO HAY ZOOM
+    carouselImage.addEventListener('mousedown', function(e) {
+        if (scale > 1) {
+            isDragging = true;
+            startX = e.clientX - posX;
+            startY = e.clientY - posY;
+            carouselImage.style.cursor = 'grabbing';
+        }
     });
     
-    // Reset al cambiar imagen
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging) return;
+        
+        posX = e.clientX - startX;
+        posY = e.clientY - startY;
+        applyTransform();
+    });
+    
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+        if (scale > 1) {
+            carouselImage.style.cursor = 'grab';
+        }
+    });
+    
+    // DOBLE CLIC PARA RESET
+    carouselImage.addEventListener('dblclick', function(e) {
+        e.preventDefault();
+        resetZoom();
+    });
+    
+    // RESET AL CAMBIAR IMAGEN
     const originalOpenCarousel = window.openCarousel;
     window.openCarousel = function(index) {
-        scale = 1;
-        carouselImage.style.transform = 'scale(1)';
+        resetZoom();
         originalOpenCarousel(index);
     };
+    
+    // TÁCTIL (móviles)
+    let initialDistance = 0;
+    let initialScale = 1;
+    
+    carouselImage.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 2) {
+            initialScale = scale;
+            initialDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        } else if (e.touches.length === 1 && scale > 1) {
+            isDragging = true;
+            startX = e.touches[0].clientX - posX;
+            startY = e.touches[0].clientY - posY;
+        }
+    });
+    
+    carouselImage.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2) {
+            e.preventDefault();
+            const currentDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            scale = Math.max(0.5, Math.min(5, 
+                initialScale * (currentDistance / initialDistance)));
+            applyTransform();
+        } else if (isDragging && e.touches.length === 1) {
+            e.preventDefault();
+            posX = e.touches[0].clientX - startX;
+            posY = e.touches[0].clientY - startY;
+            applyTransform();
+        }
+    });
+    
+    carouselImage.addEventListener('touchend', function() {
+        isDragging = false;
+    });
 }
     
 });
