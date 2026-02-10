@@ -2531,6 +2531,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // Solo añadir esto al final:
     adjustEditorForMobile();
     window.addEventListener('resize', adjustEditorForMobile);
+
+// ===== AQUÍ AGREGAS LO NUEVO =====
+    const carouselImage = document.getElementById('carouselImage');
+    if (carouselImage) {
+        carouselImage.style.touchAction = 'pan-y pinch-zoom';
+        
+        let touchStartX = 0;
+        let touchStartTime = 0;
+        
+        carouselImage.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartTime = Date.now();
+            }
+        });
+        
+        carouselImage.addEventListener('touchend', function(e) {
+            if (e.changedTouches.length === 1) {
+                const endX = e.changedTouches[0].clientX;
+                const deltaX = Math.abs(endX - touchStartX);
+                const deltaTime = Date.now() - touchStartTime;
+                
+                if (deltaX > 100 && deltaTime < 300) {
+                    // Swipe rápido detectado
+                }
+            }
+        });
+    }
+    
 });
 });
 </script>
