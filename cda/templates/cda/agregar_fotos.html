@@ -2380,35 +2380,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     loadCarouselPhotos();
     setupDraggableEditor();
-    /*
-    let touchStartX = 0;
-    let touchEndX = 0;
     
-    const carousel = document.getElementById('carouselModal');
-    if (carousel) {
-        carousel.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-        
-        carousel.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-    }
-    
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        const diff = touchStartX - touchEndX;
-        
-        if (Math.abs(diff) > swipeThreshold) {
-            if (diff > 0) {
-                nextPhoto();
-            } else {
-                prevPhoto();
-            }
-        }
-    }
-    */
     if (!document.querySelector('link[href*="bootstrap-icons"]')) {
         console.warn('Bootstrap Icons no encontrado. Los íconos no se mostrarán correctamente.');
     }
@@ -2520,7 +2492,7 @@ function adjustEditorForMobile() {
         }
     } else {
         // En desktop, mantener comportamiento normal
-        // El arrastre ya está configurado en setupDraggableEditor()
+        
     }
 }
 
@@ -2528,11 +2500,11 @@ function adjustEditorForMobile() {
 document.addEventListener('DOMContentLoaded', function() {
     // ... todo el código existente SIN cambios ...
     
-    // Solo añadir esto al final:
+    
     adjustEditorForMobile();
     window.addEventListener('resize', adjustEditorForMobile);
 
-// ===== AQUÍ AGREGAS LO NUEVO =====
+// ===== ZOOM NATIVO EN LA IMAGNES =====
     const carouselImage = document.getElementById('carouselImage');
     if (carouselImage) {
         carouselImage.style.touchAction = 'pan-y pinch-zoom';
