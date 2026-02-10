@@ -2523,141 +2523,32 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', adjustEditorForMobile);
 
 // ===== ZOOM PARA PC Y MÓVILES =====
-   const carouselImage = document.getElementById('carouselImage');
-if (carouselImage) {
-    // Configuración básica
-    carouselImage.style.touchAction = 'pan-y pinch-zoom';
-    let scale = 1;
-    let isDragging = false;
-    let startX = 0, startY = 0;
-    let offsetX = 0, offsetY = 0;
-    
-    // Función para aplicar zoom
-    function applyZoom() {
-        carouselImage.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-        carouselImage.style.transformOrigin = 'center center';
-        carouselImage.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
+const carouselImage = document.getElementById('carouselImage');
+    if (carouselImage) {
+        carouselImage.style.touchAction = 'pan-y pinch-zoom';
         
-        // Ocultar comentario si hay mucho zoom
-        const comment = document.querySelector('.carousel-info');
-        if (comment) {
-            if (scale > 1.5) {
-                comment.style.opacity = '0';
-                comment.style.pointerEvents = 'none';
-            } else {
-                comment.style.opacity = '1';
-                comment.style.pointerEvents = 'auto';
+        let touchStartX = 0;
+        let touchStartTime = 0;
+        
+        carouselImage.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartTime = Date.now();
             }
-        }
-    }
-    
-    // Resetear zoom
-    function resetZoom() {
-        scale = 1;
-        offsetX = 0;
-        offsetY = 0;
-        applyZoom();
-    }
-    
-    // ===== PARA PC =====
-    // Zoom con Ctrl + rueda
-    carouselImage.addEventListener('wheel', function(e) {
-        if (e.ctrlKey) {
-            e.preventDefault();
-            const delta = e.deltaY < 0 ? 0.25 : -0.25;
-            scale = Math.max(1, Math.min(4, scale + delta));
-            applyZoom();
-        }
-    });
-    
-    // Arrastre con mouse
-    carouselImage.addEventListener('mousedown', function(e) {
-        if (scale > 1) {
-            isDragging = true;
-            startX = e.clientX - offsetX;
-            startY = e.clientY - offsetY;
-            carouselImage.style.cursor = 'grabbing';
-        }
-    });
-    
-    document.addEventListener('mousemove', function(e) {
-        if (!isDragging) return;
-        offsetX = e.clientX - startX;
-        offsetY = e.clientY - startY;
-        applyZoom();
-    });
-    
-    document.addEventListener('mouseup', () => isDragging = false);
-    
-    // Doble clic para reset
-    carouselImage.addEventListener('dblclick', (e) => {
-        e.preventDefault();
-        resetZoom();
-    });
-    
-    // ===== PARA MÓVIL =====
-    let initialDistance = 0;
-    let initialScale = 1;
-    
-    carouselImage.addEventListener('touchstart', function(e) {
-        if (e.touches.length === 2) {
-            // Zoom con dos dedos
-            initialScale = scale;
-            initialDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-        } else if (e.touches.length === 1 && scale > 1) {
-            // Arrastre con un dedo
-            isDragging = true;
-            startX = e.touches[0].clientX - offsetX;
-            startY = e.touches[0].clientY - offsetY;
-        }
-    });
-    
-    carouselImage.addEventListener('touchmove', function(e) {
-        if (e.touches.length === 2) {
-            e.preventDefault();
-            const currentDistance = Math.hypot(
-                e.touches[0].clientX - e.touches[1].clientX,
-                e.touches[0].clientY - e.touches[1].clientY
-            );
-            scale = Math.max(1, Math.min(4, initialScale * (currentDistance / initialDistance)));
-            applyZoom();
-        } else if (isDragging) {
-            e.preventDefault();
-            offsetX = e.touches[0].clientX - startX;
-            offsetY = e.touches[0].clientY - startY;
-            applyZoom();
-        }
-    });
-    
-    carouselImage.addEventListener('touchend', () => isDragging = false);
-    
-    // ===== FUNCIONALIDADES GLOBALES =====
-    // Reset al cambiar imagen
-    const originalOpenCarousel = window.openCarousel;
-    window.openCarousel = function(index) {
-        resetZoom();
-        originalOpenCarousel(index);
-    };
-    
-    // Reset al cerrar carrusel
-    const originalCloseCarousel = window.closeCarousel;
-    window.closeCarousel = function() {
-        resetZoom();
-        originalCloseCarousel();
-    };
-    
-    // Clic fuera para reset (solo en móvil/tablet)
-    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        document.addEventListener('click', function(e) {
-            if (scale > 1 && !carouselImage.contains(e.target)) {
-                resetZoom();
+        });
+        
+        carouselImage.addEventListener('touchend', function(e) {
+            if (e.changedTouches.length === 1) {
+                const endX = e.changedTouches[0].clientX;
+                const deltaX = Math.abs(endX - touchStartX);
+                const deltaTime = Date.now() - touchStartTime;
+                
+                if (deltaX > 100 && deltaTime < 300) {
+                    // Swipe rápido detectado
+                }
             }
         });
     }
-}
     
 });
 });
