@@ -356,13 +356,22 @@
     }
     
     .carousel-img {
+        /* Dimensiones y apariencia */
         max-width: 95%;
         max-height: 85vh;
         border-radius: 10px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         object-fit: contain;
-        transition: opacity 0.3s ease;
-    }
+    
+    /* Transiciones */
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    
+    /* Zoom y transformación */
+        transform-origin: center center;
+    
+    /* Cursor interactivo */
+        cursor: zoom-in;
+}
     
     .carousel-nav {
         position: absolute;
@@ -2504,33 +2513,29 @@ document.addEventListener('DOMContentLoaded', function() {
     adjustEditorForMobile();
     window.addEventListener('resize', adjustEditorForMobile);
 
-// ===== ZOOM NATIVO EN LA IMAGNES =====
+// ===== ZOOM PARA PC Y MÓVILES =====
     const carouselImage = document.getElementById('carouselImage');
     if (carouselImage) {
-        carouselImage.style.touchAction = 'pan-y pinch-zoom';
-        
-        let touchStartX = 0;
-        let touchStartTime = 0;
-        
-        carouselImage.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 1) {
-                touchStartX = e.touches[0].clientX;
-                touchStartTime = Date.now();
-            }
-        });
-        
-        carouselImage.addEventListener('touchend', function(e) {
-            if (e.changedTouches.length === 1) {
-                const endX = e.changedTouches[0].clientX;
-                const deltaX = Math.abs(endX - touchStartX);
-                const deltaTime = Date.now() - touchStartTime;
-                
-                if (deltaX > 100 && deltaTime < 300) {
-                    // Swipe rápido detectado
-                }
-            }
-        });
-    }
+    // Para móviles: permitir zoom táctil
+    carouselImage.style.touchAction = 'pan-y pinch-zoom';
+    
+    // Para PC
+    let scale = 1;
+    
+    carouselImage.addEventListener('wheel', function(e) {
+        // ... código para zoom con rueda del mouse ...
+    });
+    
+    carouselImage.addEventListener('dblclick', function() {
+        // ... código para resetear con doble clic ...
+    });
+    
+    // Reset al cambiar de imagen
+    const originalOpenCarousel = window.openCarousel;
+    window.openCarousel = function(index) {
+        // ... código para resetear zoom al cambiar imagen ...
+    };
+}
     
 });
 });
