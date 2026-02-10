@@ -353,6 +353,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        overflow: auto;
     }
     
     .carousel-img {
@@ -2515,25 +2516,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ===== ZOOM PARA PC Y MÓVILES =====
     const carouselImage = document.getElementById('carouselImage');
-    if (carouselImage) {
-    // Para móviles: permitir zoom táctil
+if (carouselImage) {
+    // Para móviles
     carouselImage.style.touchAction = 'pan-y pinch-zoom';
     
     // Para PC
     let scale = 1;
     
     carouselImage.addEventListener('wheel', function(e) {
-        // ... código para zoom con rueda del mouse ...
+        e.preventDefault();
+        
+        // Zoom in/out con Ctrl + rueda
+        const delta = e.deltaY < 0 ? 0.25 : -0.25;
+        scale = Math.max(0.5, Math.min(5, scale + delta)); // Máximo 5x
+        
+        // Aplicar zoom solo a la imagen
+        carouselImage.style.transform = `scale(${scale})`;
+        carouselImage.style.transformOrigin = 'center center';
+        carouselImage.style.transition = 'transform 0.1s';
+        carouselImage.style.cursor = scale > 1 ? 'grab' : 'zoom-in';
     });
     
+    // Doble clic para reset
     carouselImage.addEventListener('dblclick', function() {
-        // ... código para resetear con doble clic ...
+        scale = 1;
+        carouselImage.style.transform = 'scale(1)';
+        carouselImage.style.transition = 'transform 0.3s';
+        carouselImage.style.cursor = 'zoom-in';
     });
     
-    // Reset al cambiar de imagen
+    // Reset al cambiar imagen
     const originalOpenCarousel = window.openCarousel;
     window.openCarousel = function(index) {
-        // ... código para resetear zoom al cambiar imagen ...
+        scale = 1;
+        carouselImage.style.transform = 'scale(1)';
+        originalOpenCarousel(index);
     };
 }
     
