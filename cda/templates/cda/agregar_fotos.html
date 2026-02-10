@@ -353,6 +353,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
         
     }
     
@@ -363,9 +364,9 @@
         border-radius: 10px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         object-fit: contain;
-        transition: opacity 0.3s ease, transform 0.3s ease; /* ← AGREGAR transform */
+        transition: transform 0.3s;/* ← AGREGAR transform */
         cursor: zoom-in; /* ← AGREGAR cursor */
-        transform-origin: 0 0; /* ← AGREGAR transform-origin */
+        transform-origin: center center; /* ← AGREGAR transform-origin */
     
     /* Transiciones */
         transition: opacity 0.3s ease, transform 0.3s ease;
@@ -375,6 +376,11 @@
     
     /* Cursor interactivo */
         cursor: zoom-in;
+}
+    /* Cuando hay zoom, poner la imagen encima de todo */
+    .carousel-img.zoomed {
+        position: relative;
+        z-index: 1000;
 }
     
     .carousel-nav {
