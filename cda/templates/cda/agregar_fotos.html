@@ -361,7 +361,18 @@
         border-radius: 10px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         object-fit: contain;
-        transition: opacity 0.3s ease;
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform-origin: center center;
+        cursor: zoom-in;
+    }
+    
+    .carousel-img.zoomed {
+        cursor: grab;
+        transition: transform 0.2s ease;
+    }
+    
+    .carousel-img.zoomed:active {
+        cursor: grabbing;
     }
     
     .carousel-nav {
@@ -445,6 +456,69 @@
         transform: scale(1.1);
     }
     
+    /* ===== ZOOM TÁCTIL MEJORADO ===== */
+    .zoom-indicator {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        z-index: 20;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        pointer-events: none;
+    }
+    
+    .zoom-indicator.active {
+        display: flex;
+    }
+    
+    .zoom-controls {
+        position: absolute;
+        bottom: 100px;
+        right: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 20;
+    }
+    
+    .zoom-btn {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: 2px solid white;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        user-select: none;
+    }
+    
+    .zoom-btn:hover {
+        background: rgba(0, 0, 0, 0.9);
+        transform: scale(1.1);
+    }
+    
+    /* Contenedor con scroll para zoom táctil */
+    .carousel-image-container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    
     /* ===== TARJETAS DE FOTOS CON BOTÓN ELIMINAR ===== */
     .photo-card-container {
         position: relative;
@@ -517,7 +591,6 @@
     transform: scale(1); /* Siempre visible */
     font-size: 1rem;
 }
-    
     
     .delete-photo-btn:hover {
         background: rgba(220, 53, 69, 1);
@@ -705,6 +778,31 @@
         padding: 6px 8px !important; 
         margin: 6px 0 !important; 
     }
+    
+    /* Ajustes para controles de zoom en móviles */
+    .zoom-controls {
+        bottom: 80px;
+        right: 10px;
+    }
+    
+    .zoom-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .zoom-indicator {
+        top: 10px;
+        right: 10px;
+        font-size: 0.8rem;
+        padding: 6px 10px;
+    }
+    
+    .carousel-nav {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
 }
 
 /* MÓVILES PEQUEÑOS (576px o menos) - MÁS COMPACTO */
@@ -758,8 +856,19 @@
     }
     
     .slider-container {
-        padding: 4px 6px !important; /
+        padding: 4px 6px !important; 
         margin: 4px 0 !important; 
+    }
+    
+    .zoom-controls {
+        bottom: 70px;
+        right: 5px;
+    }
+    
+    .zoom-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
     }
 }
 
@@ -817,14 +926,17 @@
         padding: 3px 4px !important; 
         margin: 3px 0 !important; 
     }
-}
     
-    /* PC GRANDES (1200px o más) 
-    @media (min-width: 1200px) {
-        .editor-tools {
-            width: 350px;
-        }
+    .zoom-controls {
+        bottom: 60px;
     }
+    
+    .carousel-nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+}
     
     /* Estados de carga */
     .loading {
@@ -854,9 +966,31 @@
 {% endblock %}
 
 {% block content %}
-<!-- ===== MODAL DEL CARRUSEL ===== -->
+<!-- ===== MODAL DEL CARRUSEL CON ZOOM TÁCTIL ===== -->
 <div id="carouselModal" class="carousel-modal">
     <span class="carousel-close" onclick="closeCarousel()">&times;</span>
+    
+    <!-- Indicador de zoom -->
+    <div id="zoomIndicator" class="zoom-indicator">
+        <i class="bi bi-zoom-in"></i>
+        <span id="zoomLevel">100%</span>
+        <button id="resetZoomBtn" class="btn btn-sm btn-outline-light ms-2" onclick="resetZoom()">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
+        </button>
+    </div>
+    
+    <!-- Controles de zoom -->
+    <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomIn()" title="Acercar">
+            <i class="bi bi-plus-lg"></i>
+        </button>
+        <button class="zoom-btn" onclick="zoomOut()" title="Alejar">
+            <i class="bi bi-dash-lg"></i>
+        </button>
+        <button class="zoom-btn" onclick="resetZoom()" title="Restablecer zoom">
+            <i class="bi bi-zoom-out"></i>
+        </button>
+    </div>
     
     <div class="carousel-container">
         <div class="carousel-nav carousel-prev" onclick="prevPhoto()">
@@ -867,7 +1001,8 @@
             <i class="bi bi-chevron-right"></i>
         </div>
         
-        <div class="text-center" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;">
+        <!-- Contenedor con scroll para zoom táctil -->
+        <div class="carousel-image-container" id="imageContainer">
             <img id="carouselImage" class="carousel-img" src="" alt="Foto placa">
         </div>
         
@@ -905,7 +1040,6 @@
                 <div class="col-lg-8 mb-4">
                     <div class="edit-image-container">
                         <img id="editPreviewImg" class="img-fluid" alt="Foto para editar">
-                        <!-- NO HAY CANVAS PARA DIBUJAR -->
                     </div>
                     
                     <div class="alert alert-info">
@@ -1217,7 +1351,7 @@
     </div>
 </div>
 
-<!-- ===== SCRIPT PRINCIPAL CON HERRAMIENTAS SIMPLIFICADAS ===== -->
+<!-- ===== SCRIPT PRINCIPAL CON ZOOM TÁCTIL MEJORADO ===== -->
 <script>
 // ===== VARIABLES GLOBALES =====
 let cameraStream = null;
@@ -1255,6 +1389,17 @@ let originalTop = 0;
 // Variables para carrusel
 let currentCarouselIndex = 0;
 let carouselPhotos = [];
+
+// ===== VARIABLES DE ZOOM TÁCTIL =====
+let currentZoom = 1;
+let minZoom = 0.5;
+let maxZoom = 3;
+let isDraggingImage = false;
+let touchStartX = 0;
+let touchStartY = 0;
+let translateX = 0;
+let translateY = 0;
+let initialPinchDistance = 0;
 
 // ===== FUNCIONES DE NOTIFICACIÓN =====
 function showNotification(message, type = 'info') {
@@ -1396,22 +1541,22 @@ document.getElementById('focusBtn').addEventListener('click', function() {
     }
 });
 
-let currentZoom = 1;
+let currentCameraZoom = 1;
 document.getElementById('zoomInBtn').addEventListener('click', function() {
-    if (currentZoom < 3) {
-        currentZoom += 0.5;
+    if (currentCameraZoom < 3) {
+        currentCameraZoom += 0.5;
         const zoomContainer = document.getElementById('videoZoomContainer');
-        zoomContainer.style.transform = `scale(${currentZoom})`;
-        showNotification(`Zoom: ${currentZoom.toFixed(1)}x`, 'info');
+        zoomContainer.style.transform = `scale(${currentCameraZoom})`;
+        showNotification(`Zoom: ${currentCameraZoom.toFixed(1)}x`, 'info');
     }
 });
 
 document.getElementById('zoomOutBtn').addEventListener('click', function() {
-    if (currentZoom > 1) {
-        currentZoom -= 0.5;
+    if (currentCameraZoom > 1) {
+        currentCameraZoom -= 0.5;
         const zoomContainer = document.getElementById('videoZoomContainer');
-        zoomContainer.style.transform = `scale(${currentZoom})`;
-        showNotification(`Zoom: ${currentZoom.toFixed(1)}x`, 'info');
+        zoomContainer.style.transform = `scale(${currentCameraZoom})`;
+        showNotification(`Zoom: ${currentCameraZoom.toFixed(1)}x`, 'info');
     }
 });
 
@@ -1963,6 +2108,228 @@ function loadCarouselPhotos() {
     });
 }
 
+// ===== FUNCIONES DE ZOOM TÁCTIL MEJORADO =====
+
+function setupTouchZoom() {
+    const carouselImage = document.getElementById('carouselImage');
+    const imageContainer = document.getElementById('imageContainer');
+    
+    if (!carouselImage) return;
+    
+    // Eventos táctiles para gestos de zoom
+    carouselImage.addEventListener('touchstart', handleImageTouchStart, { passive: false });
+    carouselImage.addEventListener('touchmove', handleImageTouchMove, { passive: false });
+    carouselImage.addEventListener('touchend', handleImageTouchEnd, { passive: false });
+    
+    // Eventos de ratón para desktop
+    carouselImage.addEventListener('mousedown', handleImageMouseDown);
+    carouselImage.addEventListener('wheel', handleImageWheel, { passive: false });
+    
+    // Doble clic para zoom
+    carouselImage.addEventListener('dblclick', handleImageDoubleClick);
+    
+    // Actualizar indicador de zoom
+    updateZoomIndicator();
+}
+
+function handleImageTouchStart(e) {
+    if (e.touches.length === 2) {
+        // Inicio de gesto de pellizco para zoom
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        initialPinchDistance = getDistance(touch1, touch2);
+        e.preventDefault();
+    } else if (e.touches.length === 1 && currentZoom > 1) {
+        // Inicio de arrastre cuando hay zoom
+        isDraggingImage = true;
+        const touch = e.touches[0];
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        e.preventDefault();
+    }
+}
+
+function handleImageTouchMove(e) {
+    if (e.touches.length === 2) {
+        // Movimiento de gesto de pellizco
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const currentDistance = getDistance(touch1, touch2);
+        
+        if (initialPinchDistance > 0) {
+            const scaleChange = currentDistance / initialPinchDistance;
+            const newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom * scaleChange));
+            
+            if (newZoom !== currentZoom) {
+                currentZoom = newZoom;
+                applyImageTransform();
+                updateZoomIndicator();
+                
+                // Actualizar distancia inicial para continuo
+                initialPinchDistance = currentDistance;
+            }
+        }
+        e.preventDefault();
+    } else if (e.touches.length === 1 && isDraggingImage && currentZoom > 1) {
+        // Arrastre de imagen con zoom
+        const touch = e.touches[0];
+        const deltaX = touch.clientX - touchStartX;
+        const deltaY = touch.clientY - touchStartY;
+        
+        translateX += deltaX;
+        translateY += deltaY;
+        
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        
+        applyImageTransform();
+        e.preventDefault();
+    }
+}
+
+function handleImageTouchEnd(e) {
+    if (e.touches.length < 2) {
+        initialPinchDistance = 0;
+    }
+    if (e.touches.length === 0) {
+        isDraggingImage = false;
+    }
+}
+
+function handleImageMouseDown(e) {
+    if (currentZoom > 1) {
+        isDraggingImage = true;
+        touchStartX = e.clientX;
+        touchStartY = e.clientY;
+        e.preventDefault();
+        
+        document.addEventListener('mousemove', handleImageMouseMove);
+        document.addEventListener('mouseup', handleImageMouseUp);
+    }
+}
+
+function handleImageMouseMove(e) {
+    if (isDraggingImage && currentZoom > 1) {
+        const deltaX = e.clientX - touchStartX;
+        const deltaY = e.clientY - touchStartY;
+        
+        translateX += deltaX;
+        translateY += deltaY;
+        
+        touchStartX = e.clientX;
+        touchStartY = e.clientY;
+        
+        applyImageTransform();
+        e.preventDefault();
+    }
+}
+
+function handleImageMouseUp() {
+    isDraggingImage = false;
+    document.removeEventListener('mousemove', handleImageMouseMove);
+    document.removeEventListener('mouseup', handleImageMouseUp);
+}
+
+function handleImageWheel(e) {
+    if (e.ctrlKey || e.deltaY !== 0) {
+        e.preventDefault();
+        
+        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+        const newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+        
+        if (newZoom !== currentZoom) {
+            currentZoom = newZoom;
+            applyImageTransform();
+            updateZoomIndicator();
+        }
+    }
+}
+
+function handleImageDoubleClick(e) {
+    if (currentZoom === 1) {
+        currentZoom = 2;
+        // Centrar el zoom en el punto del doble clic
+        const rect = e.target.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const clickY = e.clientY - rect.top;
+        
+        // Ajustar la traslación para centrar en el punto clickeado
+        translateX = -(clickX * 2 - rect.width / 2);
+        translateY = -(clickY * 2 - rect.height / 2);
+    } else {
+        currentZoom = 1;
+        translateX = 0;
+        translateY = 0;
+    }
+    
+    applyImageTransform();
+    updateZoomIndicator();
+    e.preventDefault();
+}
+
+function getDistance(touch1, touch2) {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function applyImageTransform() {
+    const carouselImage = document.getElementById('carouselImage');
+    if (!carouselImage) return;
+    
+    // Aplicar transformación de zoom y traslación
+    carouselImage.style.transform = `translate(${translateX}px, ${translateY}px) scale(${currentZoom})`;
+    
+    // Cambiar clase según el zoom
+    if (currentZoom > 1) {
+        carouselImage.classList.add('zoomed');
+    } else {
+        carouselImage.classList.remove('zoomed');
+        translateX = 0;
+        translateY = 0;
+    }
+    
+    // Mostrar u ocultar indicador de zoom
+    const zoomIndicator = document.getElementById('zoomIndicator');
+    if (zoomIndicator) {
+        if (currentZoom !== 1) {
+            zoomIndicator.classList.add('active');
+        } else {
+            zoomIndicator.classList.remove('active');
+        }
+    }
+}
+
+function updateZoomIndicator() {
+    const zoomLevelElement = document.getElementById('zoomLevel');
+    if (zoomLevelElement) {
+        zoomLevelElement.textContent = `${Math.round(currentZoom * 100)}%`;
+    }
+}
+
+function zoomIn() {
+    currentZoom = Math.min(maxZoom, currentZoom + 0.25);
+    applyImageTransform();
+    updateZoomIndicator();
+    showNotification(`Zoom: ${Math.round(currentZoom * 100)}%`, 'info');
+}
+
+function zoomOut() {
+    currentZoom = Math.max(minZoom, currentZoom - 0.25);
+    applyImageTransform();
+    updateZoomIndicator();
+    showNotification(`Zoom: ${Math.round(currentZoom * 100)}%`, 'info');
+}
+
+function resetZoom() {
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    applyImageTransform();
+    updateZoomIndicator();
+    showNotification('Zoom restablecido', 'info');
+}
+
 function openCarousel(index) {
     currentCarouselIndex = index;
     loadCarouselPhotos();
@@ -1974,15 +2341,33 @@ function openCarousel(index) {
     const carouselCounter = document.getElementById('carouselCounter');
     const carouselComment = document.getElementById('carouselComment');
     
+    // Resetear zoom al abrir nueva imagen
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    
+    carouselImage.onload = function() {
+        // Configurar eventos de zoom para la nueva imagen
+        setTimeout(setupTouchZoom, 100);
+    };
+    
     carouselImage.src = carouselPhotos[index].src;
     carouselCounter.textContent = `${index + 1} de ${carouselPhotos.length}`;
     carouselComment.textContent = carouselPhotos[index].comment;
     
     modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
+    
+    // Inicializar zoom táctil
+    setupTouchZoom();
 }
 
 function closeCarousel() {
+    // Resetear zoom antes de cerrar
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    
     document.getElementById('carouselModal').style.display = 'none';
     document.body.style.overflow = 'auto';
 }
@@ -1996,14 +2381,21 @@ function prevPhoto() {
     const carouselCounter = document.getElementById('carouselCounter');
     const carouselComment = document.getElementById('carouselComment');
     
+    // Resetear zoom al cambiar de imagen
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    
     carouselImage.style.opacity = '0.3';
     
-    setTimeout(() => {
-        carouselImage.src = carouselPhotos[currentCarouselIndex].src;
-        carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
-        carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
-        carouselImage.style.opacity = '1';
-    }, 200);
+    carouselImage.onload = function() {
+        this.style.opacity = '1';
+        setupTouchZoom();
+    };
+    
+    carouselImage.src = carouselPhotos[currentCarouselIndex].src;
+    carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
+    carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
 }
 
 function nextPhoto() {
@@ -2015,14 +2407,21 @@ function nextPhoto() {
     const carouselCounter = document.getElementById('carouselCounter');
     const carouselComment = document.getElementById('carouselComment');
     
+    // Resetear zoom al cambiar de imagen
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    
     carouselImage.style.opacity = '0.3';
     
-    setTimeout(() => {
-        carouselImage.src = carouselPhotos[currentCarouselIndex].src;
-        carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
-        carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
-        carouselImage.style.opacity = '1';
-    }, 200);
+    carouselImage.onload = function() {
+        this.style.opacity = '1';
+        setupTouchZoom();
+    };
+    
+    carouselImage.src = carouselPhotos[currentCarouselIndex].src;
+    carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
+    carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
 }
 
 // ===== FUNCIÓN PARA ELIMINAR FOTOS =====
@@ -2376,7 +2775,7 @@ function getCookie(name) {
 
 // ===== INICIALIZACIÓN AL CARGAR LA PÁGINA =====
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Página cargada - Sistema de fotos con herramientas simplificadas');
+    console.log('Página cargada - Sistema de fotos con ZOOM TÁCTIL MEJORADO');
     
     loadCarouselPhotos();
     setupDraggableEditor();
@@ -2449,90 +2848,36 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Todas las funcionalidades cargadas correctamente:');
     console.log('1. ✅ Captura de fotos con cámara');
-    console.log('2. ✅ Edición de fotos nuevas (herramientas simplificadas)');
-    console.log('3. ✅ HERRAMIENTAS: Pincel, Flecha, Texto y Borrador');
-    console.log('4. ✅ Paleta de colores para dibujar líneas');
-    console.log('5. ✅ Carrusel de fotos');
-    console.log('6. ✅ Eliminación de fotos');
-    console.log('7. ✅ EDICIÓN SIMPLIFICADA: Solo comentario para fotos existentes');
-    console.log(`8. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
-
+    console.log('2. ✅ Edición de fotos nuevas');
+    console.log('3. ✅ Carrusel de fotos con ZOOM TÁCTIL COMPLETO');
+    console.log('4. ✅ Eliminación de fotos');
+    console.log('5. ✅ Edición de comentarios');
+    console.log(`6. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
+    console.log('7. ✅ ZOOM MEJORADO: Gestos de pellizco, arrastre, doble clic y controles');
     
-
-    // Bloquear swipe en la imagen del carrusel
-const carouselImage = document.getElementById('carouselImage');
-if (carouselImage) {
-    carouselImage.addEventListener('touchstart', function(e) {
-        // Solo prevenimos que el evento se propague
-        e.stopPropagation();
-    });
-    
-    carouselImage.addEventListener('touchmove', function(e) {
-        // Prevenimos el desplazamiento en la imagen
-        e.preventDefault();
-    });
-}
-
     // ===== AJUSTE AUTOMÁTICO PARA MÓVILES =====
-function adjustEditorForMobile() {
-    const editor = document.getElementById('editorTools');
-    const toggleBtn = document.getElementById('toggleEditorBtn');
-    
-    if (!editor || !toggleBtn) return;
-    
-    // Solo aplicar en móviles (≤768px)
-    if (window.innerWidth <= 768) {
-        // Desactivar arrastre en móviles
-        const header = document.getElementById('editorHeader');
-        if (header) {
-            header.style.cursor = 'default';
-            // Remover eventos de arrastre si existen
-            header.removeEventListener('mousedown', startDrag);
-            header.removeEventListener('touchstart', startDragTouch);
-        }
-    } else {
-        // En desktop, mantener comportamiento normal
+    function adjustEditorForMobile() {
+        const editor = document.getElementById('editorTools');
+        const toggleBtn = document.getElementById('toggleEditorBtn');
         
+        if (!editor || !toggleBtn) return;
+        
+        // Solo aplicar en móviles (≤768px)
+        if (window.innerWidth <= 768) {
+            // Desactivar arrastre en móviles
+            const header = document.getElementById('editorHeader');
+            if (header) {
+                header.style.cursor = 'default';
+                // Remover eventos de arrastre si existen
+                header.removeEventListener('mousedown', startDrag);
+                header.removeEventListener('touchstart', startDragTouch);
+            }
+        }
     }
-}
-
-// Llamar la función al cargar y al redimensionar
-document.addEventListener('DOMContentLoaded', function() {
-    // ... todo el código existente SIN cambios ...
     
-    
+    // Llamar la función al cargar y al redimensionar
     adjustEditorForMobile();
     window.addEventListener('resize', adjustEditorForMobile);
-
-// ===== ZOOM NATIVO EN LA IMAGNES =====
-    const carouselImage = document.getElementById('carouselImage');
-    if (carouselImage) {
-        carouselImage.style.touchAction = 'pan-y pinch-zoom';
-        
-        let touchStartX = 0;
-        let touchStartTime = 0;
-        
-        carouselImage.addEventListener('touchstart', function(e) {
-            if (e.touches.length === 1) {
-                touchStartX = e.touches[0].clientX;
-                touchStartTime = Date.now();
-            }
-        });
-        
-        carouselImage.addEventListener('touchend', function(e) {
-            if (e.changedTouches.length === 1) {
-                const endX = e.changedTouches[0].clientX;
-                const deltaX = Math.abs(endX - touchStartX);
-                const deltaTime = Date.now() - touchStartTime;
-                
-                if (deltaX > 100 && deltaTime < 300) {
-                    // Swipe rápido detectado
-                }
-            }
-        });
-    }
-    
-});
 });
 </script>
 {% endblock %}
