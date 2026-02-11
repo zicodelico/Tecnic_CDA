@@ -353,44 +353,16 @@
         display: flex;
         justify-content: center;
         align-items: center;
-         overflow: hidden; /* IMPORTANTE: prevenir scroll accidental */
-        
     }
     
     .carousel-img {
-        /* Dimensiones y apariencia */
         max-width: 95%;
         max-height: 85vh;
         border-radius: 10px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         object-fit: contain;
-        
-        /* Habilitar zoom táctil */
-    touch-action: pan-y pinch-zoom;
-    
-    /* Transiciones suaves */
-    transition: transform 0.2s ease !important;
-    transform-origin: center center;
-    
-    /* Cursor para indicar interactividad */
-    cursor: pointer;
-    
-    /* Mejorar la experiencia táctil */
-    -webkit-user-drag: none;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-}
-
-/* Clase para cuando se esté haciendo zoom */
-.carousel-img.zooming {
-    cursor: grab !important;
-    transition: none !important;
-}
-        
-        
-    
-    
-    
+        transition: opacity 0.3s ease;
+    }
     
     .carousel-nav {
         position: absolute;
@@ -436,8 +408,6 @@
         background: rgba(0,0,0,0.7);
         border-radius: 10px;
         max-width: 800px;
-        transition: opacity 0.3s ease;
-        z-index: 10;
     }
     
     .carousel-counter {
@@ -2488,7 +2458,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log(`8. ✅ ${document.querySelectorAll('.photo-card-container').length} fotos cargadas`);
 
     
-/*
+
     // Bloquear swipe en la imagen del carrusel
 const carouselImage = document.getElementById('carouselImage');
 if (carouselImage) {
@@ -2502,211 +2472,65 @@ if (carouselImage) {
         e.preventDefault();
     });
 }
-*/
-   
 
-        // ===== AJUSTE AUTOMÁTICO PARA MÓVILES =====
-    function loadCarouselPhotos() {
-    carouselPhotos = [];
-    document.querySelectorAll('.photo-card-container img.card-img-top').forEach(img => {
-        carouselPhotos.push({
-            src: img.src,
-            comment: img.dataset.comment || 'Sin comentario',
-            id: img.dataset.fotoId
-        });
-    });
+    // ===== AJUSTE AUTOMÁTICO PARA MÓVILES =====
+function adjustEditorForMobile() {
+    const editor = document.getElementById('editorTools');
+    const toggleBtn = document.getElementById('toggleEditorBtn');
+    
+    if (!editor || !toggleBtn) return;
+    
+    // Solo aplicar en móviles (≤768px)
+    if (window.innerWidth <= 768) {
+        // Desactivar arrastre en móviles
+        const header = document.getElementById('editorHeader');
+        if (header) {
+            header.style.cursor = 'default';
+            // Remover eventos de arrastre si existen
+            header.removeEventListener('mousedown', startDrag);
+            header.removeEventListener('touchstart', startDragTouch);
+        }
+    } else {
+        // En desktop, mantener comportamiento normal
+        
+    }
 }
 
-function openCarousel(index) {
-    currentCarouselIndex = index;
-    loadCarouselPhotos();
+// Llamar la función al cargar y al redimensionar
+document.addEventListener('DOMContentLoaded', function() {
+    // ... todo el código existente SIN cambios ...
     
-    if (carouselPhotos.length === 0) return;
     
-    const modal = document.getElementById('carouselModal');
-    const carouselImage = document.getElementById('carouselImage');
-    const carouselCounter = document.getElementById('carouselCounter');
-    const carouselComment = document.getElementById('carouselComment');
-    
-    // Resetear zoom antes de abrir
-    resetCarouselZoom();
-    
-    carouselImage.src = carouselPhotos[index].src;
-    carouselCounter.textContent = `${index + 1} de ${carouselPhotos.length}`;
-    carouselComment.textContent = carouselPhotos[index].comment;
-    
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-    
-    // Configurar zoom táctil después de abrir
-    setTimeout(() => {
-        setupCarouselZoom();
-    }, 100);
-}
+    adjustEditorForMobile();
+    window.addEventListener('resize', adjustEditorForMobile);
 
-function closeCarousel() {
-    resetCarouselZoom();
-    document.getElementById('carouselModal').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function prevPhoto() {
-    if (carouselPhotos.length === 0) return;
-    
-    resetCarouselZoom();
-    
-    currentCarouselIndex = (currentCarouselIndex - 1 + carouselPhotos.length) % carouselPhotos.length;
-    
-    const carouselImage = document.getElementById('carouselImage');
-    const carouselCounter = document.getElementById('carouselCounter');
-    const carouselComment = document.getElementById('carouselComment');
-    
-    carouselImage.style.opacity = '0.3';
-    
-    setTimeout(() => {
-        carouselImage.src = carouselPhotos[currentCarouselIndex].src;
-        carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
-        carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
-        carouselImage.style.opacity = '1';
-    }, 200);
-}
-
-function nextPhoto() {
-    if (carouselPhotos.length === 0) return;
-    
-    resetCarouselZoom();
-    
-    currentCarouselIndex = (currentCarouselIndex + 1) % carouselPhotos.length;
-    
-    const carouselImage = document.getElementById('carouselImage');
-    const carouselCounter = document.getElementById('carouselCounter');
-    const carouselComment = document.getElementById('carouselComment');
-    
-    carouselImage.style.opacity = '0.3';
-    
-    setTimeout(() => {
-        carouselImage.src = carouselPhotos[currentCarouselIndex].src;
-        carouselCounter.textContent = `${currentCarouselIndex + 1} de ${carouselPhotos.length}`;
-        carouselComment.textContent = carouselPhotos[currentCarouselIndex].comment;
-        carouselImage.style.opacity = '1';
-    }, 200);
-}
-
-// ===== SISTEMA DE ZOOM TÁCTIL SIMPLIFICADO Y FUNCIONAL =====
-
-let carouselZoomScale = 1;
-let isZooming = false;
-let startDistance = 0;
-let initialScale = 1;
-let lastTouchEnd = 0;
-
-function resetCarouselZoom() {
+// ===== ZOOM NATIVO EN LA IMAGNES =====
     const carouselImage = document.getElementById('carouselImage');
     if (carouselImage) {
-        carouselZoomScale = 1;
-        carouselImage.style.transform = 'scale(1)';
-        carouselImage.classList.remove('zooming');
-    }
-}
-
-function setupCarouselZoom() {
-    const carouselImage = document.getElementById('carouselImage');
-    if (!carouselImage) return;
-    
-    // Aplicar estilos para zoom táctil
-    carouselImage.style.touchAction = 'pan-y pinch-zoom';
-    carouselImage.style.transformOrigin = 'center center';
-    carouselImage.style.transition = 'transform 0.2s ease';
-    
-    // Función para resetear zoom
-    function resetZoom() {
-        carouselZoomScale = 1;
-        carouselImage.style.transform = 'scale(1)';
-        carouselImage.classList.remove('zooming');
-    }
-    
-    // Evento para doble tap (zoom in/out)
-    carouselImage.addEventListener('touchend', function(e) {
-        const currentTime = new Date().getTime();
-        const tapLength = currentTime - lastTouchEnd;
+        carouselImage.style.touchAction = 'pan-y pinch-zoom';
         
-        if (tapLength < 300 && tapLength > 0) {
-            // Doble tap detectado
-            if (carouselZoomScale > 1) {
-                resetZoom();
-            } else {
-                carouselZoomScale = 2;
-                carouselImage.style.transform = `scale(${carouselZoomScale})`;
-                carouselImage.classList.add('zooming');
-            }
-            e.preventDefault();
-        }
+        let touchStartX = 0;
+        let touchStartTime = 0;
         
-        lastTouchEnd = currentTime;
-    });
-    
-    // Pinch-to-zoom
-    carouselImage.addEventListener('touchstart', function(e) {
-        if (e.touches.length === 2) {
-            isZooming = true;
-            carouselImage.classList.add('zooming');
-            
-            const touch1 = e.touches[0];
-            const touch2 = e.touches[1];
-            startDistance = Math.hypot(
-                touch2.clientX - touch1.clientX,
-                touch2.clientY - touch1.clientY
-            );
-            
-            initialScale = carouselZoomScale;
-        }
-    });
-    
-    carouselImage.addEventListener('touchmove', function(e) {
-        if (isZooming && e.touches.length === 2) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            const touch1 = e.touches[0];
-            const touch2 = e.touches[1];
-            const currentDistance = Math.hypot(
-                touch2.clientX - touch1.clientX,
-                touch2.clientY - touch1.clientY
-            );
-            
-            if (startDistance > 0) {
-                const scaleFactor = currentDistance / startDistance;
-                carouselZoomScale = Math.max(1, Math.min(5, initialScale * scaleFactor));
-                carouselImage.style.transform = `scale(${carouselZoomScale})`;
+        carouselImage.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+                touchStartX = e.touches[0].clientX;
+                touchStartTime = Date.now();
             }
-        }
-    });
-    
-    carouselImage.addEventListener('touchend', function(e) {
-        if (isZooming) {
-            isZooming = false;
-            
-            // Si el zoom es muy pequeño, resetear
-            if (carouselZoomScale < 1.1) {
-                resetZoom();
+        });
+        
+        carouselImage.addEventListener('touchend', function(e) {
+            if (e.changedTouches.length === 1) {
+                const endX = e.changedTouches[0].clientX;
+                const deltaX = Math.abs(endX - touchStartX);
+                const deltaTime = Date.now() - touchStartTime;
+                
+                if (deltaX > 100 && deltaTime < 300) {
+                    // Swipe rápido detectado
+                }
             }
-        }
-    });
-    
-    // Click para salir del zoom
-    carouselImage.addEventListener('click', function(e) {
-        if (carouselZoomScale > 1) {
-            resetZoom();
-        }
-    });
-    
-    // Detectar tecla Escape para resetear zoom
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && carouselZoomScale > 1) {
-            resetZoom();
-        }
-    });
-}
+        });
+    }
     
 });
 });
