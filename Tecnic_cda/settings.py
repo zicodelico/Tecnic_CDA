@@ -3,6 +3,9 @@ import time
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 
+from django.contrib.auth.validators import UnicodeUsernameValidator
+import re
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -172,3 +175,13 @@ if DEBUG:
 # Cada nueva sesión invalida la anterior
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
 
+
+# ✅ SOBREESCRIBIR EL VALIDADOR DE USERNAME DE DJANGO
+class CustomUsernameValidator(UnicodeUsernameValidator):
+    regex = r'^[a-zA-Z0-9\-_./@+]+$'
+    message = 'El nombre de usuario solo puede contener letras, números y los caracteres: - _ . / @ +'
+    flags = re.ASCII
+
+# Reemplazar el validador global de Django
+import django.contrib.auth.validators
+django.contrib.auth.validators.UnicodeUsernameValidator = CustomUsernameValidator
