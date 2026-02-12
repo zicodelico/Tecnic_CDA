@@ -54,13 +54,17 @@ class BaseCrearUsuarioForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields['password1'].widget = forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'})
         self.fields['password2'].widget = forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmar contraseña'})
+        
+        # ✅ ELIMINAR VALIDADORES POR DEFECTO DE DJANGO
+        self.fields['username'].validators = []
+        self.fields['username'].help_text = 'Requerido. 150 caracteres o menos. Letras, números y caracteres: - _ . / @ +'
     
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if username:
             import re
             if not re.match(r'^[a-zA-Z0-9\-_./@+]+$', username):
-                raise forms.ValidationError('El nombre de usuario solo puede contener letras, números y los caracteres: - _ . / @ + (sin espacios)')
+                raise forms.ValidationError('El nombre de usuario solo puede contener letras, números y los caracteres: - _ . / @ +')
             if User.objects.filter(username__iexact=username).exists():
                 raise forms.ValidationError('Este nombre de usuario ya está en uso.')
         return username
