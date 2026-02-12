@@ -42,12 +42,28 @@ class FotoForm(forms.ModelForm):
 class BaseCrearUsuarioForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'password1', 'password2']
+        fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de usuario'}),
-            'password1': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}),
-            'password2': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmar contraseña'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Apellido'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@ejemplo.com'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget = forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'})
+        self.fields['password2'].widget = forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirmar contraseña'})
+    
+    def clean_username(self):
+        username = self.cleaned_data.get('username')
+        if username:
+            import re
+            if not re.match(r'^[a-zA-Z0-9\-_./@+]+$', username):
+                raise forms.ValidationError('El nombre de usuario solo puede contener letras, números y los caracteres: - _ . / @ + (sin espacios)')
+            if User.objects.filter(username__iexact=username).exists():
+                raise forms.ValidationError('Este nombre de usuario ya está en uso.')
+        return username
 
 # 👤 Formulario para Ingenieros (solo Inspector e Ingeniero)
 class CrearUsuarioFormIngeniero(BaseCrearUsuarioForm):
